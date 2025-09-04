@@ -4,13 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Role {
+public class StopDTO {
     private Long id;
-    private String title;
-    private Set<Permission> permissions;
+    private String name;
+    private Double lat;
+    private Double lon;
 }

@@ -9,8 +9,11 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoutePredictionDTO {
-    private RouteDTO route;
-    private LocalDateTime departureTime;
-    private Integer predictedLoad;
+public class PassengerCountDTO {
+    private Long id;
+    private BusDTO bus;
+    private StopDTO stop;
+    private Integer entered;
+    private Integer exited;
+    private LocalDateTime timestamp;
 }

@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stop {
+public class UserDTO {
     private Long id;
-    private String name;
-    private Double lat;
-    private Double lon;
+    private String username;
+    private String password;
+    private boolean enabled;
+    private Set<RoleDTO> roles;
 }

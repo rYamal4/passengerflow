@@ -4,15 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class BusDTO {
     private Long id;
-    private String username;
-    private String password;
-    private boolean enabled;
-    private Set<Role> roles;
+    private String model;
+    private RouteDTO route;
 }

@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Route {
+public class RoleDTO {
     private Long id;
-    private List<Stop> stops;
-    private List<Bus> buses;
+    private String title;
+    private Set<PermissionDTO> permissions;
 }
