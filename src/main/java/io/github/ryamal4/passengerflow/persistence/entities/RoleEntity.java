@@ -3,6 +3,7 @@ package io.github.ryamal4.passengerflow.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,15 +32,23 @@ public class RoleEntity {
 
     @ManyToMany(mappedBy = "roles")
     @Setter(AccessLevel.PRIVATE)
-    private Set<UserEntity> users = new HashSet<>();
+    Set<UserEntity> users = new HashSet<>();
+
+    public Set<PermissionEntity> getPermissions() {
+        return Collections.unmodifiableSet(permissions);
+    }
+
+    public Set<UserEntity> getUsers() {
+        return Collections.unmodifiableSet(users);
+    }
 
     public void addPermission(PermissionEntity permission) {
         permissions.add(permission);
-        permission.getRoles().add(this);
+        permission.roles.add(this);
     }
 
     public void removePermission(PermissionEntity permission) {
         permissions.remove(permission);
-        permission.getRoles().remove(this);
+        permission.roles.remove(this);
     }
 }

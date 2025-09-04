@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -27,6 +28,10 @@ public class BusEntity {
     @OneToMany(mappedBy = "bus")
     @Setter(AccessLevel.PRIVATE)
     private List<PassengerCountEntity> passengerCounts = new ArrayList<>();
+
+    public List<PassengerCountEntity> getPassengerCounts() {
+        return Collections.unmodifiableList(passengerCounts);
+    }
 }
 
 // TODO make collection fields package-private, add helper methods

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -39,4 +40,8 @@ public class StopEntity {
     @OneToMany(mappedBy = "stop")
     @Setter(AccessLevel.PRIVATE)
     private List<PassengerCountEntity> passengerCounts = new ArrayList<>();
+
+    public List<PassengerCountEntity> getPassengerCounts() {
+        return Collections.unmodifiableList(passengerCounts);
+    }
 }

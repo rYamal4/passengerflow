@@ -37,11 +37,11 @@ public class UserEntity {
 
     public void addRole(RoleEntity role) {
         roles.add(role);
-        role.getUsers().add(this);
+        role.users.add(this);
     }
 
     public void removeRole(RoleEntity role) {
         roles.remove(role);
-        role.getUsers().remove(this);
+        role.users.remove(this);
     }
 }

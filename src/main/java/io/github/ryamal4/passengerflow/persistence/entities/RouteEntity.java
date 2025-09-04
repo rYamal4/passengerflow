@@ -7,16 +7,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
 @Table(name = "routes")
 @NoArgsConstructor
-@Getter
 @EqualsAndHashCode(of = {"id"})
 public class RouteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     @Setter
     private Long id;
 
@@ -25,6 +26,14 @@ public class RouteEntity {
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BusEntity> buses = new ArrayList<>();
+
+    public List<StopEntity> getStops() {
+        return Collections.unmodifiableList(stops);
+    }
+
+    public List<BusEntity> getBuses() {
+        return Collections.unmodifiableList(buses);
+    }
 
     public void addStop(StopEntity stop) {
         stops.add(stop);
