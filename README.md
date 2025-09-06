@@ -1,16 +1,12 @@
-# 🚌 PassengerFlow
+# PassengerFlow
 
----
-
-## Overview
+### Overview
 
 PassengerFlow is a Spring Boot web service designed to optimize public transportation by
 analyzing and predicting passenger flow on various routes. The system collects real-time data, analyzes it, and provides
 forecasting capabilities.
 
 **Technologies:** Java 17, Spring Boot 3.5.5, PostgreSQL, Maven
-
----
 
 ## Setup
 
@@ -70,8 +66,6 @@ docker-compose -f passengerflow-compose.yml up
 docker-compose -f passengerflow-with-db-compose.yml up
 ```
 
----
-
 ## API Endpoints
 
 ### Submit Passenger Data
@@ -82,7 +76,17 @@ POST /api/passengers
 
 Submits passenger count data collected from sensors at bus stops.
 
-**Request Body:**
+**Request Body Fields:**
+
+| Field       | Type    | Required | Description                    | Example               |
+|-------------|---------|----------|--------------------------------|-----------------------|
+| `bus_id`    | integer | Yes      | Unique identifier for the bus  | `1`                   |
+| `stop_id`   | integer | Yes      | Unique identifier for the stop | `1`                   |
+| `entered`   | integer | Yes      | Number of passengers entered   | `15`                  |
+| `exited`    | integer | Yes      | Number of passengers exited    | `8`                   |
+| `timestamp` | string  | Yes      | Timestamp in ISO format        | `2025-12-20T08:30:00` |
+
+**Request Body Example:**
 
 ```json
 {
