@@ -76,7 +76,17 @@ POST /api/passengers
 
 Submits passenger count data collected from sensors at bus stops.
 
-**Request Body:**
+**Request Body Fields:**
+
+| Field       | Type    | Required | Description                    | Example               |
+|-------------|---------|----------|--------------------------------|-----------------------|
+| `bus_id`    | integer | Yes      | Unique identifier for the bus  | `1`                   |
+| `stop_id`   | integer | Yes      | Unique identifier for the stop | `1`                   |
+| `entered`   | integer | Yes      | Number of passengers entered   | `15`                  |
+| `exited`    | integer | Yes      | Number of passengers exited    | `8`                   |
+| `timestamp` | string  | Yes      | Timestamp in ISO format        | `2025-12-20T08:30:00` |
+
+**Request Body Example:**
 
 ```json
 {
