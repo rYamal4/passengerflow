@@ -10,7 +10,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-@Table(name = "stops")
+@Table(name = "stops", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"name", "route_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor

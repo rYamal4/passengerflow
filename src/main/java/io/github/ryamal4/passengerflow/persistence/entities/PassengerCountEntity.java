@@ -2,7 +2,7 @@ package io.github.ryamal4.passengerflow.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import jakarta.validation.constraints.Min;
 
 import java.time.LocalDateTime;
 
@@ -26,12 +26,13 @@ public class PassengerCountEntity {
     private StopEntity stop;
 
     @Column(nullable = false)
+    @Min(0)
     private Integer entered;
 
     @Column(nullable = false)
+    @Min(0)
     private Integer exited;
 
     @Column(nullable = false)
-    @CreationTimestamp
     private LocalDateTime timestamp;
 }

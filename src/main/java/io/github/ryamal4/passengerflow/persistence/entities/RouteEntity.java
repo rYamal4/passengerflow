@@ -21,6 +21,11 @@ public class RouteEntity {
     @Setter
     private Long id;
 
+    @Column(nullable = false)
+    @Getter
+    @Setter
+    private String name;
+
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StopEntity> stops = new ArrayList<>();
 

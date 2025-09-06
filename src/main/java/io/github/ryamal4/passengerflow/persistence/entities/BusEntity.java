@@ -33,5 +33,3 @@ public class BusEntity {
         return Collections.unmodifiableList(passengerCounts);
     }
 }
-
-// TODO make collection fields package-private, add helper methods
