@@ -1,5 +1,6 @@
 package io.github.ryamal4.passengerflow.service;
 
+import io.github.ryamal4.passengerflow.AbstractTestContainerTest;
 import io.github.ryamal4.passengerflow.persistence.entities.BusEntity;
 import io.github.ryamal4.passengerflow.persistence.entities.PassengerCountEntity;
 import io.github.ryamal4.passengerflow.persistence.entities.RouteEntity;
@@ -8,15 +9,9 @@ import io.github.ryamal4.passengerflow.persistence.repository.IPassengerReposito
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,23 +21,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Testcontainers
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(PassengerCountCalculationService.class)
-class PassengerCountProcessorIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
+class PassengerCountProcessorTest extends AbstractTestContainerTest {
 
     @Autowired
     private TestEntityManager entityManager;
