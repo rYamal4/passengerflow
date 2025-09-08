@@ -144,8 +144,10 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
     void testCalculateCurrentPassengersForDate_OnlyProcessesNullRecords() {
         LocalDate testDate = LocalDate.of(2025, 1, 15);
 
-        PassengerCountEntity unprocessed = createPassengerCount(testBus1, testDate.atTime(8, 0), 10, 0);
-        PassengerCountEntity alreadyProcessed = createPassengerCount(testBus1, testDate.atTime(9, 0), 5, 3);
+        PassengerCountEntity unprocessed = createPassengerCount(testBus1,
+                testDate.atTime(8, 0), 10, 0);
+        PassengerCountEntity alreadyProcessed = createPassengerCount(testBus1,
+                testDate.atTime(9, 0), 5, 3);
 
         alreadyProcessed.setCurrentPassengers(15);
         entityManager.persistAndFlush(alreadyProcessed);
@@ -154,8 +156,10 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         entityManager.flush();
         entityManager.clear();
 
-        PassengerCountEntity refreshedUnprocessed = entityManager.find(PassengerCountEntity.class, unprocessed.getId());
-        PassengerCountEntity refreshedProcessed = entityManager.find(PassengerCountEntity.class, alreadyProcessed.getId());
+        PassengerCountEntity refreshedUnprocessed = entityManager.find(PassengerCountEntity.class,
+                unprocessed.getId());
+        PassengerCountEntity refreshedProcessed = entityManager.find(PassengerCountEntity.class,
+                alreadyProcessed.getId());
 
         assertThat(refreshedUnprocessed.getCurrentPassengers()).isEqualTo(10);
         assertThat(refreshedProcessed.getCurrentPassengers()).isEqualTo(15);
