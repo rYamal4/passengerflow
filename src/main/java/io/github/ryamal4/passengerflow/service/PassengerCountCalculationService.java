@@ -23,7 +23,7 @@ public class PassengerCountCalculationService {
     @Transactional
     public void calculateCurrentPassengersForDate(LocalDate date) {
         List<PassengerCountEntity> recordsToProcess = passengerRepository
-                .findByTimestampBetweenAndCurrentPassengersIsNull(
+                .findByTimestampBetween(
                         date.atStartOfDay(),
                         date.plusDays(1).atStartOfDay()
                 );

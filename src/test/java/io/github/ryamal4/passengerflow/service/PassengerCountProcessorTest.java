@@ -73,13 +73,13 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         entityManager.flush();
         entityManager.clear();
 
-        List<PassengerCountEntity> processedRecords = passengerRepository
-                .findByTimestampBetweenAndCurrentPassengersIsNull(
+        List<PassengerCountEntity> allRecordsForDate = passengerRepository
+                .findByTimestampBetween(
                         testDate.atStartOfDay(),
                         testDate.plusDays(1).atStartOfDay()
                 );
 
-        assertThat(processedRecords).isEmpty();
+        assertThat(allRecordsForDate).hasSize(3).allMatch(pc -> pc.getCurrentPassengers() != null);
 
         List<PassengerCountEntity> allRecords = passengerRepository.findAll();
         List<PassengerCountEntity> testDateRecords = allRecords.stream()
@@ -141,28 +141,24 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
     }
 
     @Test
-    void testCalculateCurrentPassengersForDate_OnlyProcessesNullRecords() {
+    void testCalculateCurrentPassengersForDate_ReprocessesAllRecords() {
         LocalDate testDate = LocalDate.of(2025, 1, 15);
 
-        PassengerCountEntity unprocessed = createPassengerCount(testBus1,
-                testDate.atTime(8, 0), 10, 0);
-        PassengerCountEntity alreadyProcessed = createPassengerCount(testBus1,
-                testDate.atTime(9, 0), 5, 3);
+        PassengerCountEntity record1 = createPassengerCount(testBus1, testDate.atTime(8, 0), 10, 0);
+        PassengerCountEntity record2 = createPassengerCount(testBus1, testDate.atTime(9, 0), 5, 3);
 
-        alreadyProcessed.setCurrentPassengers(15);
-        entityManager.persistAndFlush(alreadyProcessed);
+        record2.setCurrentPassengers(999);
+        entityManager.persistAndFlush(record2);
 
         calculationService.calculateCurrentPassengersForDate(testDate);
         entityManager.flush();
         entityManager.clear();
 
-        PassengerCountEntity refreshedUnprocessed = entityManager.find(PassengerCountEntity.class,
-                unprocessed.getId());
-        PassengerCountEntity refreshedProcessed = entityManager.find(PassengerCountEntity.class,
-                alreadyProcessed.getId());
+        PassengerCountEntity refreshedRecord1 = entityManager.find(PassengerCountEntity.class, record1.getId());
+        PassengerCountEntity refreshedRecord2 = entityManager.find(PassengerCountEntity.class, record2.getId());
 
-        assertThat(refreshedUnprocessed.getCurrentPassengers()).isEqualTo(10);
-        assertThat(refreshedProcessed.getCurrentPassengers()).isEqualTo(15);
+        assertThat(refreshedRecord1.getCurrentPassengers()).isEqualTo(10);
+        assertThat(refreshedRecord2.getCurrentPassengers()).isEqualTo(12);
     }
 
     @Test
