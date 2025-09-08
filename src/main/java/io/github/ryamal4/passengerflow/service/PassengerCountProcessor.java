@@ -19,6 +19,7 @@ public class PassengerCountProcessor {
 
     @Scheduled(cron = "0 0 1 * * *")
     public void processYesterdayData() {
+        // we assume that every bus stops working at 00:00
         LocalDate yesterday = LocalDate.now().minusDays(1);
         log.info("Processing passenger counts for date: {}", yesterday);
         calculationService.calculateCurrentPassengersForDate(yesterday);
