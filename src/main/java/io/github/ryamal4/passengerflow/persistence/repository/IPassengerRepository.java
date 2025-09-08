@@ -9,13 +9,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IPassengerRepository extends JpaRepository<PassengerCountEntity, Long> {
-
-    @Query("""
+    String COUNTS_BETWEEN_DATETIME = """
             SELECT pc FROM PassengerCountEntity pc
             WHERE pc.timestamp BETWEEN :startDateTime AND :endDateTime
               AND pc.currentPassengers IS NULL
             ORDER BY pc.bus.id, pc.timestamp
-            """)
+            """;
+
+    @Query(COUNTS_BETWEEN_DATETIME)
     List<PassengerCountEntity> findByTimestampBetweenAndCurrentPassengersIsNull(
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime
