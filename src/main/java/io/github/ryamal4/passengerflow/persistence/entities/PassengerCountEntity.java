@@ -7,7 +7,10 @@ import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "passenger_counts")
+@Table(name = "passenger_counts", indexes = {
+    @Index(name = "idx_bus_date_time", columnList = "bus_id, timestamp"),
+    @Index(name = "idx_stop_timestamp", columnList = "stop_id, timestamp")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,4 +38,7 @@ public class PassengerCountEntity {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    @Column(name = "current_passengers")
+    private Integer currentPassengers;
 }
