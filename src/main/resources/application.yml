@@ -13,3 +13,7 @@ spring:
       ddl-auto: update
 
     show-sql: true
+
+open-meteo:
+  api:
+    url: https://api.open-meteo.com/v1/forecast
