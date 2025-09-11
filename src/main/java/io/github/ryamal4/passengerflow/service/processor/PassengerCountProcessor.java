@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.service;
+package io.github.ryamal4.passengerflow.service.processor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.service;
+package io.github.ryamal4.passengerflow.service.weather;
 
 import java.time.LocalDateTime;
 import java.util.TimeZone;

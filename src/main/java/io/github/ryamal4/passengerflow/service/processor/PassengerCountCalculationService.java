@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.service;
+package io.github.ryamal4.passengerflow.service.processor;
 
 import io.github.ryamal4.passengerflow.model.PassengerCount;
 import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;

@@ -1,6 +1,5 @@
 package io.github.ryamal4.passengerflow.service.weather;
 
-import io.github.ryamal4.passengerflow.service.IWeatherService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
