@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoutePredictionDTO {
-    private RouteDTO route;
+    private Route route;
     private LocalDateTime departureTime;
     private Integer predictedLoad;
 }

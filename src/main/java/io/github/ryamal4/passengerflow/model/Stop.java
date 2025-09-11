@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.persistence.entities;
+package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
@@ -11,13 +11,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "stops", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"name", "route_id"})
+        @UniqueConstraint(columnNames = {"name", "route_id"})
 })
 @Getter
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class StopEntity {
+public class Stop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,13 +37,13 @@ public class StopEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)
-    private RouteEntity route;
+    private Route route;
 
     @OneToMany(mappedBy = "stop")
     @Setter(AccessLevel.PRIVATE)
-    private List<PassengerCountEntity> passengerCounts = new ArrayList<>();
+    private List<PassengerCount> passengerCounts = new ArrayList<>();
 
-    public List<PassengerCountEntity> getPassengerCounts() {
+    public List<PassengerCount> getPassengerCounts() {
         return Collections.unmodifiableList(passengerCounts);
     }
 }

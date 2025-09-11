@@ -1,8 +1,8 @@
-package io.github.ryamal4.passengerflow.persistence.repository;
+package io.github.ryamal4.passengerflow.repository;
 
 import io.github.ryamal4.passengerflow.AbstractTestContainerTest;
-import io.github.ryamal4.passengerflow.persistence.entities.RouteEntity;
-import io.github.ryamal4.passengerflow.persistence.entities.StopEntity;
+import io.github.ryamal4.passengerflow.model.Route;
+import io.github.ryamal4.passengerflow.model.Stop;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,26 +28,26 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
     @Autowired
     private IStopsRepository stopsRepository;
 
-    private RouteEntity testRoute;
+    private Route testRoute;
 
     @BeforeEach
     void setUp() {
-        testRoute = new RouteEntity();
+        testRoute = new Route();
         testRoute.setName("TestRoute");
         entityManager.persistAndFlush(testRoute);
     }
 
     @Test
     void testGetNearbyStops_ReturnsSortedByDistance() {
-        StopEntity nearStop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
-        StopEntity farStop = createStop(STOP_2, 61.0000, 25.0000, testRoute);
-        StopEntity middleStop = createStop(STOP_3, 60.5000, 24.9500, testRoute);
+        Stop nearStop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
+        Stop farStop = createStop(STOP_2, 61.0000, 25.0000, testRoute);
+        Stop middleStop = createStop(STOP_3, 60.5000, 24.9500, testRoute);
 
         entityManager.persistAndFlush(nearStop);
         entityManager.persistAndFlush(farStop);
         entityManager.persistAndFlush(middleStop);
 
-        List<StopEntity> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 3);
+        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 3);
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0)).isEqualTo(nearStop);
@@ -56,47 +56,47 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
 
     @Test
     void testGetNearbyStops_RespectsLimit() {
-        StopEntity stop1 = createStop(STOP_1, 60.1695, 24.9354, testRoute);
-        StopEntity stop2 = createStop(STOP_2, 60.1696, 24.9355, testRoute);
-        StopEntity stop3 = createStop(STOP_3, 60.1697, 24.9356, testRoute);
-        StopEntity stop4 = createStop(STOP_4, 60.1698, 24.9357, testRoute);
+        Stop stop1 = createStop(STOP_1, 60.1695, 24.9354, testRoute);
+        Stop stop2 = createStop(STOP_2, 60.1696, 24.9355, testRoute);
+        Stop stop3 = createStop(STOP_3, 60.1697, 24.9356, testRoute);
+        Stop stop4 = createStop(STOP_4, 60.1698, 24.9357, testRoute);
 
         entityManager.persistAndFlush(stop1);
         entityManager.persistAndFlush(stop2);
         entityManager.persistAndFlush(stop3);
         entityManager.persistAndFlush(stop4);
 
-        List<StopEntity> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 2);
+        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 2);
 
         assertThat(result).hasSize(2);
     }
 
     @Test
     void testGetNearbyStops_EmptyDatabase() {
-        List<StopEntity> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 5);
+        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 5);
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void testGetNearbyStops_WithZeroCount() {
-        StopEntity stop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
+        Stop stop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
         entityManager.persistAndFlush(stop);
 
-        List<StopEntity> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 0);
+        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 0);
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void testGetNearbyStops_BoundaryCoordinates() {
-        StopEntity northPoleStop = createStop(STOP_1, 89.9999, 0.0, testRoute);
-        StopEntity equatorStop = createStop(STOP_2, 0.0, 0.0, testRoute);
+        Stop northPoleStop = createStop(STOP_1, 89.9999, 0.0, testRoute);
+        Stop equatorStop = createStop(STOP_2, 0.0, 0.0, testRoute);
 
         entityManager.persistAndFlush(northPoleStop);
         entityManager.persistAndFlush(equatorStop);
 
-        List<StopEntity> result = stopsRepository.getNearbyStops(90.0, 0.0, 2);
+        List<Stop> result = stopsRepository.getNearbyStops(90.0, 0.0, 2);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo(northPoleStop);
@@ -104,21 +104,21 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
 
     @Test
     void testGetNearbyStops_CalculatesDistanceCorrectly() {
-        StopEntity nearestStop = createStop(STOP_1, LAT_60_1699, LON_24_9342, testRoute);
-        StopEntity furtherStop = createStop(STOP_2, 60.1686, 24.9324, testRoute);
+        Stop nearestStop = createStop(STOP_1, LAT_60_1699, LON_24_9342, testRoute);
+        Stop furtherStop = createStop(STOP_2, 60.1686, 24.9324, testRoute);
 
         entityManager.persistAndFlush(nearestStop);
         entityManager.persistAndFlush(furtherStop);
 
-        List<StopEntity> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 2);
+        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 2);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo(nearestStop);
         assertThat(result.get(1)).isEqualTo(furtherStop);
     }
 
-    private StopEntity createStop(String name, double lat, double lon, RouteEntity route) {
-        StopEntity stop = new StopEntity();
+    private Stop createStop(String name, double lat, double lon, Route route) {
+        Stop stop = new Stop();
         stop.setName(name);
         stop.setLat(lat);
         stop.setLon(lon);

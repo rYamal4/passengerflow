@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.persistence.entities;
+package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "routes")
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class RouteEntity {
+public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
@@ -27,35 +27,35 @@ public class RouteEntity {
     private String name;
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StopEntity> stops = new ArrayList<>();
+    private List<Stop> stops = new ArrayList<>();
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BusEntity> buses = new ArrayList<>();
+    private List<Bus> buses = new ArrayList<>();
 
-    public List<StopEntity> getStops() {
+    public List<Stop> getStops() {
         return Collections.unmodifiableList(stops);
     }
 
-    public List<BusEntity> getBuses() {
+    public List<Bus> getBuses() {
         return Collections.unmodifiableList(buses);
     }
 
-    public void addStop(StopEntity stop) {
+    public void addStop(Stop stop) {
         stops.add(stop);
         stop.setRoute(this);
     }
 
-    public void removeStop(StopEntity stop) {
+    public void removeStop(Stop stop) {
         stops.remove(stop);
         stop.setRoute(null);
     }
 
-    public void addBus(BusEntity bus) {
+    public void addBus(Bus bus) {
         buses.add(bus);
         bus.setRoute(this);
     }
 
-    public void removeBus(BusEntity bus) {
+    public void removeBus(Bus bus) {
         buses.remove(bus);
         bus.setRoute(null);
     }

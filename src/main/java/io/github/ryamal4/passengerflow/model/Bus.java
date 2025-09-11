@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.persistence.entities;
+package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class BusEntity {
+public class Bus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,13 +23,13 @@ public class BusEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)
-    private RouteEntity route;
+    private Route route;
 
     @OneToMany(mappedBy = "bus")
     @Setter(AccessLevel.PRIVATE)
-    private List<PassengerCountEntity> passengerCounts = new ArrayList<>();
+    private List<PassengerCount> passengerCounts = new ArrayList<>();
 
-    public List<PassengerCountEntity> getPassengerCounts() {
+    public List<PassengerCount> getPassengerCounts() {
         return Collections.unmodifiableList(passengerCounts);
     }
 }

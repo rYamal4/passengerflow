@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.persistence.entities;
+package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class RoleEntity {
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,26 +28,26 @@ public class RoleEntity {
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     @Setter(AccessLevel.PRIVATE)
-    private Set<PermissionEntity> permissions = new HashSet<>();
+    private Set<Permission> permissions = new HashSet<>();
 
     @ManyToMany(mappedBy = "roles")
     @Setter(AccessLevel.PRIVATE)
-    Set<UserEntity> users = new HashSet<>();
+    Set<User> users = new HashSet<>();
 
-    public Set<PermissionEntity> getPermissions() {
+    public Set<Permission> getPermissions() {
         return Collections.unmodifiableSet(permissions);
     }
 
-    public Set<UserEntity> getUsers() {
+    public Set<User> getUsers() {
         return Collections.unmodifiableSet(users);
     }
 
-    public void addPermission(PermissionEntity permission) {
+    public void addPermission(Permission permission) {
         permissions.add(permission);
         permission.roles.add(this);
     }
 
-    public void removePermission(PermissionEntity permission) {
+    public void removePermission(Permission permission) {
         permissions.remove(permission);
         permission.roles.remove(this);
     }

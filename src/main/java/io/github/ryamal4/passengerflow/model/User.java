@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.persistence.entities;
+package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +12,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class UserEntity {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,14 +33,14 @@ public class UserEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @Setter(AccessLevel.PRIVATE)
-    private Set<RoleEntity> roles = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
-    public void addRole(RoleEntity role) {
+    public void addRole(Role role) {
         roles.add(role);
         role.users.add(this);
     }
 
-    public void removeRole(RoleEntity role) {
+    public void removeRole(Role role) {
         roles.remove(role);
         role.users.remove(this);
     }

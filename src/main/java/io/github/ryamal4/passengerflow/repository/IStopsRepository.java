@@ -1,6 +1,6 @@
-package io.github.ryamal4.passengerflow.persistence.repository;
+package io.github.ryamal4.passengerflow.repository;
 
-import io.github.ryamal4.passengerflow.persistence.entities.StopEntity;
+import io.github.ryamal4.passengerflow.model.Stop;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IStopsRepository extends JpaRepository<StopEntity, Long> {
+public interface IStopsRepository extends JpaRepository<Stop, Long> {
     String NEARBY_STOPS_QUERY = """
             SELECT s.*,
                    (6371 * acos(
@@ -22,5 +22,5 @@ public interface IStopsRepository extends JpaRepository<StopEntity, Long> {
             """;
 
     @NativeQuery(NEARBY_STOPS_QUERY)
-    List<StopEntity> getNearbyStops(Double lat, Double lon, int count);
+    List<Stop> getNearbyStops(Double lat, Double lon, int count);
 }

@@ -1,11 +1,11 @@
 package io.github.ryamal4.passengerflow.service;
 
 import io.github.ryamal4.passengerflow.AbstractTestContainerTest;
-import io.github.ryamal4.passengerflow.persistence.entities.BusEntity;
-import io.github.ryamal4.passengerflow.persistence.entities.PassengerCountEntity;
-import io.github.ryamal4.passengerflow.persistence.entities.RouteEntity;
-import io.github.ryamal4.passengerflow.persistence.entities.StopEntity;
-import io.github.ryamal4.passengerflow.persistence.repository.IPassengerRepository;
+import io.github.ryamal4.passengerflow.model.Bus;
+import io.github.ryamal4.passengerflow.model.PassengerCount;
+import io.github.ryamal4.passengerflow.model.Route;
+import io.github.ryamal4.passengerflow.model.Stop;
+import io.github.ryamal4.passengerflow.repository.IPassengerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,29 +33,29 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
     @Autowired
     private PassengerCountCalculationService calculationService;
 
-    private StopEntity testStop;
-    private BusEntity testBus1;
-    private BusEntity testBus2;
+    private Stop testStop;
+    private Bus testBus1;
+    private Bus testBus2;
 
     @BeforeEach
     void setUp() {
-        RouteEntity testRoute = new RouteEntity();
+        Route testRoute = new Route();
         testRoute.setName("7A");
         entityManager.persistAndFlush(testRoute);
 
-        testStop = new StopEntity();
+        testStop = new Stop();
         testStop.setName("Kampi");
         testStop.setLat(60.1699);
         testStop.setLon(24.9342);
         testStop.setRoute(testRoute);
         entityManager.persistAndFlush(testStop);
 
-        testBus1 = new BusEntity();
+        testBus1 = new Bus();
         testBus1.setModel("Bus Model 1");
         testBus1.setRoute(testRoute);
         entityManager.persistAndFlush(testBus1);
 
-        testBus2 = new BusEntity();
+        testBus2 = new Bus();
         testBus2.setModel("Bus Model 2");
         testBus2.setRoute(testRoute);
         entityManager.persistAndFlush(testBus2);
@@ -73,7 +73,7 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         entityManager.flush();
         entityManager.clear();
 
-        List<PassengerCountEntity> allRecordsForDate = passengerRepository
+        List<PassengerCount> allRecordsForDate = passengerRepository
                 .findByTimestampBetween(
                         testDate.atStartOfDay(),
                         testDate.plusDays(1).atStartOfDay()
@@ -81,10 +81,10 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
 
         assertThat(allRecordsForDate).hasSize(3).allMatch(pc -> pc.getCurrentPassengers() != null);
 
-        List<PassengerCountEntity> allRecords = passengerRepository.findAll();
-        List<PassengerCountEntity> testDateRecords = allRecords.stream()
+        List<PassengerCount> allRecords = passengerRepository.findAll();
+        List<PassengerCount> testDateRecords = allRecords.stream()
                 .filter(pc -> pc.getTimestamp().toLocalDate().equals(testDate))
-                .sorted(Comparator.comparing(PassengerCountEntity::getTimestamp))
+                .sorted(Comparator.comparing(PassengerCount::getTimestamp))
                 .toList();
 
         assertThat(testDateRecords).hasSize(3);
@@ -107,18 +107,18 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         entityManager.flush();
         entityManager.clear();
 
-        List<PassengerCountEntity> allRecords = passengerRepository.findAll();
+        List<PassengerCount> allRecords = passengerRepository.findAll();
 
-        List<PassengerCountEntity> bus1Records = allRecords.stream()
+        List<PassengerCount> bus1Records = allRecords.stream()
                 .filter(pc -> pc.getBus().getId().equals(testBus1.getId()))
                 .filter(pc -> pc.getTimestamp().toLocalDate().equals(testDate))
-                .sorted(Comparator.comparing(PassengerCountEntity::getTimestamp))
+                .sorted(Comparator.comparing(PassengerCount::getTimestamp))
                 .toList();
 
-        List<PassengerCountEntity> bus2Records = allRecords.stream()
+        List<PassengerCount> bus2Records = allRecords.stream()
                 .filter(pc -> pc.getBus().getId().equals(testBus2.getId()))
                 .filter(pc -> pc.getTimestamp().toLocalDate().equals(testDate))
-                .sorted(Comparator.comparing(PassengerCountEntity::getTimestamp))
+                .sorted(Comparator.comparing(PassengerCount::getTimestamp))
                 .toList();
 
         assertThat(bus1Records).hasSize(2);
@@ -136,7 +136,7 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
 
         calculationService.calculateCurrentPassengersForDate(testDate);
 
-        List<PassengerCountEntity> allRecords = passengerRepository.findAll();
+        List<PassengerCount> allRecords = passengerRepository.findAll();
         assertThat(allRecords).isEmpty();
     }
 
@@ -144,8 +144,8 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
     void testCalculateCurrentPassengersForDate_ReprocessesAllRecords() {
         LocalDate testDate = LocalDate.of(2025, 1, 15);
 
-        PassengerCountEntity record1 = createPassengerCount(testBus1, testDate.atTime(8, 0), 10, 0);
-        PassengerCountEntity record2 = createPassengerCount(testBus1, testDate.atTime(9, 0), 5, 3);
+        PassengerCount record1 = createPassengerCount(testBus1, testDate.atTime(8, 0), 10, 0);
+        PassengerCount record2 = createPassengerCount(testBus1, testDate.atTime(9, 0), 5, 3);
 
         record2.setCurrentPassengers(999);
         entityManager.persistAndFlush(record2);
@@ -154,8 +154,8 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         entityManager.flush();
         entityManager.clear();
 
-        PassengerCountEntity refreshedRecord1 = entityManager.find(PassengerCountEntity.class, record1.getId());
-        PassengerCountEntity refreshedRecord2 = entityManager.find(PassengerCountEntity.class, record2.getId());
+        PassengerCount refreshedRecord1 = entityManager.find(PassengerCount.class, record1.getId());
+        PassengerCount refreshedRecord2 = entityManager.find(PassengerCount.class, record2.getId());
 
         assertThat(refreshedRecord1.getCurrentPassengers()).isEqualTo(10);
         assertThat(refreshedRecord2.getCurrentPassengers()).isEqualTo(12);
@@ -172,10 +172,10 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         entityManager.flush();
         entityManager.clear();
 
-        List<PassengerCountEntity> allRecords = passengerRepository.findAll();
-        List<PassengerCountEntity> testDateRecords = allRecords.stream()
+        List<PassengerCount> allRecords = passengerRepository.findAll();
+        List<PassengerCount> testDateRecords = allRecords.stream()
                 .filter(pc -> pc.getTimestamp().toLocalDate().equals(testDate))
-                .sorted(Comparator.comparing(PassengerCountEntity::getTimestamp))
+                .sorted(Comparator.comparing(PassengerCount::getTimestamp))
                 .toList();
 
         assertThat(testDateRecords).hasSize(2);
@@ -183,8 +183,8 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
         assertThat(testDateRecords.get(1).getCurrentPassengers()).isEqualTo(-3);
     }
 
-    private PassengerCountEntity createPassengerCount(BusEntity bus, LocalDateTime timestamp, int entered, int exited) {
-        PassengerCountEntity passengerCount = new PassengerCountEntity();
+    private PassengerCount createPassengerCount(Bus bus, LocalDateTime timestamp, int entered, int exited) {
+        PassengerCount passengerCount = new PassengerCount();
 
         passengerCount.setBus(bus);
         passengerCount.setStop(testStop);

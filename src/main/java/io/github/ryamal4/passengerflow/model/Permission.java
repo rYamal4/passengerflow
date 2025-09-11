@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.persistence.entities;
+package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class PermissionEntity {
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +23,9 @@ public class PermissionEntity {
 
     @ManyToMany(mappedBy = "permissions")
     @Setter(AccessLevel.PRIVATE)
-    Set<RoleEntity> roles = new HashSet<>();
+    Set<Role> roles = new HashSet<>();
 
-    public Set<RoleEntity> getRoles() {
+    public Set<Role> getRoles() {
         return Collections.unmodifiableSet(roles);
     }
 }
