@@ -1,7 +1,7 @@
 package io.github.ryamal4.passengerflow.service;
 
 import io.github.ryamal4.passengerflow.model.PassengerCount;
-import io.github.ryamal4.passengerflow.repository.IPassengerRepository;
+import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 @Service
 public class PassengerCountCalculationService {
 
-    private final IPassengerRepository passengerRepository;
+    private final IPassengerCountRepository passengerRepository;
 
-    public PassengerCountCalculationService(IPassengerRepository passengerRepository) {
+    public PassengerCountCalculationService(IPassengerCountRepository passengerRepository) {
         this.passengerRepository = passengerRepository;
     }
 

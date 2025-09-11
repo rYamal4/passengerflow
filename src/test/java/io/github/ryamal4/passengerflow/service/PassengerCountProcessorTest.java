@@ -5,7 +5,7 @@ import io.github.ryamal4.passengerflow.model.Bus;
 import io.github.ryamal4.passengerflow.model.PassengerCount;
 import io.github.ryamal4.passengerflow.model.Route;
 import io.github.ryamal4.passengerflow.model.Stop;
-import io.github.ryamal4.passengerflow.repository.IPassengerRepository;
+import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ class PassengerCountProcessorTest extends AbstractTestContainerTest {
     private TestEntityManager entityManager;
 
     @Autowired
-    private IPassengerRepository passengerRepository;
+    private IPassengerCountRepository passengerRepository;
 
     @Autowired
     private PassengerCountCalculationService calculationService;
