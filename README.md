@@ -36,7 +36,7 @@ DB_PASSWORD=your_password
 mvn spring-boot:run
 
 # Run with Maven with passing environment variables directly
-mvn spring-boot:run -Dspring-boot.run.jvmArguments="{env variables}"
+mvn spring-boot:run
 
 # Using Maven wrapper (Unix/Linux/Mac)
 ./mvnw spring-boot:run
@@ -51,7 +51,7 @@ Alternatively, you can download a pre-built JAR file from
 the [GitHub Releases](https://github.com/ryamal4/passengerflow/releases) page and run it directly:
 
 ```bash
-java {env variables} -jar passengerflow.jar
+java -jar passengerflow.jar
 ```
 
 #### Option 3: Running with Docker
@@ -63,6 +63,7 @@ Run the application using Docker Compose (requires `.env` file with environment 
 docker-compose -f passengerflow-compose.yml up
 
 # Or run with included PostgreSQL database
+# In that case you don't need DB_HOST and DB_PORT env variables
 docker-compose -f passengerflow-with-db-compose.yml up
 ```
 
