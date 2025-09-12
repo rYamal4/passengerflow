@@ -9,7 +9,8 @@ import java.util.List;
 
 @Repository
 public interface IStopsRepository extends JpaRepository<Stop, Long> {
-    String NEARBY_STOPS_QUERY = """
+    
+    @NativeQuery("""
             SELECT s.*,
                    (6371 * acos(
                        cos(radians(:lat)) * cos(radians(s.lat)) *
@@ -19,8 +20,6 @@ public interface IStopsRepository extends JpaRepository<Stop, Long> {
             FROM stops s
             ORDER BY distance
             LIMIT :count
-            """;
-
-    @NativeQuery(NEARBY_STOPS_QUERY)
+            """)
     List<Stop> getNearbyStops(Double lat, Double lon, int count);
 }
