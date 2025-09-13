@@ -6,7 +6,7 @@ PassengerFlow is a Spring Boot web service designed to optimize public transport
 analyzing and predicting passenger flow on various routes. The system collects real-time data, analyzes it, and provides
 forecasting capabilities.
 
-**Technologies:** Java 17, Spring Boot 3.5.5, PostgreSQL, Maven
+**Technologies:** Java 17, Spring Boot 3.5.5, PostgreSQL, Maven, Testcontainers
 
 ## Setup
 
