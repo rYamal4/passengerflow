@@ -3,8 +3,8 @@ package io.github.ryamal4.passengerflow.service.weather;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
@@ -15,10 +15,10 @@ import java.util.TimeZone;
 public class WeatherService implements IWeatherService {
     @Value("${open-meteo.api.url}")
     private String apiUrl;
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
-    public WeatherService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public WeatherService(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     @Override
@@ -35,7 +35,10 @@ public class WeatherService implements IWeatherService {
                 .toUriString();
 
         try {
-            WeatherResponseDto response = restTemplate.getForObject(url, WeatherResponseDto.class);
+            WeatherResponseDto response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(WeatherResponseDto.class);
             if (response != null && response.getHourly() != null) {
                 var hour = dateTime.getHour();
                 return response.getHourly().getWeatherCode().get(hour) > 60;
