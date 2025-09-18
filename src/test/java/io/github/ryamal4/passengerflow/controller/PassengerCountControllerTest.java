@@ -65,7 +65,7 @@ class PassengerCountControllerTest {
     }
 
     @Test
-    void createCount_Success() throws Exception {
+    void testCreateCountSuccess() throws Exception {
         PassengerCount savedCount = new PassengerCount();
         savedCount.setId(1L);
         savedCount.setBus(passengerCount.getBus());
@@ -94,14 +94,14 @@ class PassengerCountControllerTest {
     }
 
     @Test
-    void createCount_InvalidData_NegativeEntered() throws Exception {
+    void testCreateCountInvalidDataNegativeEntered() throws Exception {
         passengerCount.setEntered(-1);
 
         assertBadRequest();
     }
 
     @Test
-    void createCount_InvalidData_NegativeExited() throws Exception {
+    void testCreateCountInvalidDataNegativeExited() throws Exception {
         passengerCount.setExited(-1);
 
         assertBadRequest();
@@ -109,14 +109,14 @@ class PassengerCountControllerTest {
 
     @ParameterizedTest
     @MethodSource("nullFieldSetters")
-    void createCount_InvalidData_MissingField(Consumer<PassengerCount> fieldSetter) throws Exception {
+    void testCreateCountInvalidDataMissingField(Consumer<PassengerCount> fieldSetter) throws Exception {
         fieldSetter.accept(passengerCount);
 
         assertBadRequest();
     }
 
     @Test
-    void createCount_EmptyBody() throws Exception {
+    void testCreateCountEmptyBody() throws Exception {
         mockMvc.perform(post("/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))

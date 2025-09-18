@@ -47,7 +47,7 @@ class StopsControllerTest {
     }
 
     @Test
-    void getNearbyStops_Success() throws Exception {
+    void testGetNearbyStopsSuccess() throws Exception {
         List<Stop> stops = List.of(stop);
 
         when(stopsService.getNearbyStops(60.0, 24.0)).thenReturn(stops);
@@ -66,7 +66,7 @@ class StopsControllerTest {
     }
 
     @Test
-    void getNearbyStops_EmptyList() throws Exception {
+    void testGetNearbyStopsEmptyList() throws Exception {
         when(stopsService.getNearbyStops(0.0, 0.0)).thenReturn(List.of());
 
         mockMvc.perform(get("/stops/nearby")
@@ -79,21 +79,21 @@ class StopsControllerTest {
     }
 
     @Test
-    void getNearbyStops_MissingLatParam() throws Exception {
+    void testGetNearbyStopsMissingLatParam() throws Exception {
         mockMvc.perform(get("/stops/nearby")
                         .param("lon", "24.0"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void getNearbyStops_MissingLonParam() throws Exception {
+    void testGetNearbyStopsMissingLonParam() throws Exception {
         mockMvc.perform(get("/stops/nearby")
                         .param("lat", "60.0"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void getNearbyStops_InvalidLatParam() throws Exception {
+    void testGetNearbyStopsInvalidLatParam() throws Exception {
         mockMvc.perform(get("/stops/nearby")
                         .param("lat", "invalid")
                         .param("lon", "24.0"))
@@ -101,7 +101,7 @@ class StopsControllerTest {
     }
 
     @Test
-    void getNearbyStops_InvalidLonParam() throws Exception {
+    void testGetNearbyStopsInvalidLonParam() throws Exception {
         mockMvc.perform(get("/stops/nearby")
                         .param("lat", "60.0")
                         .param("lon", "invalid"))

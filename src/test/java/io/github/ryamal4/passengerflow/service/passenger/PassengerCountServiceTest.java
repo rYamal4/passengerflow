@@ -21,7 +21,7 @@ class PassengerCountServiceTest {
     private PassengerCountService passengerCountService;
 
     @Test
-    void createCount_Success() {
+    void testCreateCountSuccess() {
         PassengerCount inputCount = new PassengerCount();
         inputCount.setEntered(10);
         inputCount.setExited(5);
