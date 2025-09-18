@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface IStopsRepository extends JpaRepository<Stop, Long> {
-    
+
     @NativeQuery("""
             SELECT s.*,
                    (6371 * acos(
@@ -21,5 +21,5 @@ public interface IStopsRepository extends JpaRepository<Stop, Long> {
             ORDER BY distance
             LIMIT :count
             """)
-    List<Stop> getNearbyStops(Double lat, Double lon, int count);
+    List<Stop> findNearbyStops(double lat, double lon, int count);
 }
