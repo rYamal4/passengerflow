@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PassengersCountController.class)
-class PassengersCountControllerTest {
+@WebMvcTest(PassengerCountController.class)
+class PassengerCountControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

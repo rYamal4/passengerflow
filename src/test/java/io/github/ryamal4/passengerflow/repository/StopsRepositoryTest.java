@@ -47,7 +47,7 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
         entityManager.persistAndFlush(farStop);
         entityManager.persistAndFlush(middleStop);
 
-        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 3);
+        List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 3);
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0)).isEqualTo(nearStop);
@@ -66,14 +66,14 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
         entityManager.persistAndFlush(stop3);
         entityManager.persistAndFlush(stop4);
 
-        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 2);
+        List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 2);
 
         assertThat(result).hasSize(2);
     }
 
     @Test
     void testGetNearbyStops_EmptyDatabase() {
-        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 5);
+        List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 5);
 
         assertThat(result).isEmpty();
     }
@@ -83,7 +83,7 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
         Stop stop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
         entityManager.persistAndFlush(stop);
 
-        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 0);
+        List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 0);
 
         assertThat(result).isEmpty();
     }
@@ -96,7 +96,7 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
         entityManager.persistAndFlush(northPoleStop);
         entityManager.persistAndFlush(equatorStop);
 
-        List<Stop> result = stopsRepository.getNearbyStops(90.0, 0.0, 2);
+        List<Stop> result = stopsRepository.findNearbyStops(90.0, 0.0, 2);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo(northPoleStop);
@@ -110,7 +110,7 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
         entityManager.persistAndFlush(nearestStop);
         entityManager.persistAndFlush(furtherStop);
 
-        List<Stop> result = stopsRepository.getNearbyStops(LAT_60_1699, LON_24_9342, 2);
+        List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 2);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo(nearestStop);

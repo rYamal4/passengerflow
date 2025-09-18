@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/passengers")
-public class PassengersCountController {
+public class PassengerCountController {
     private final IPassengerCountService passengerCountService;
 
-    public PassengersCountController(IPassengerCountService passengerCountService) {
+    public PassengerCountController(IPassengerCountService passengerCountService) {
         this.passengerCountService = passengerCountService;
     }
 
