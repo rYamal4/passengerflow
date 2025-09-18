@@ -2,6 +2,7 @@ package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,20 +26,25 @@ public class PassengerCount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bus_id", nullable = false)
+    @NotNull
     private Bus bus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stop_id", nullable = false)
+    @NotNull
     private Stop stop;
 
     @Column(nullable = false)
     @Min(0)
+    @NotNull
     private Integer entered;
 
     @Column(nullable = false)
     @Min(0)
+    @NotNull
     private Integer exited;
 
     @Column(nullable = false)
+    @NotNull
     private LocalDateTime timestamp;
 }
