@@ -41,7 +41,4 @@ public class PassengerCount {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
-
-    @Column(name = "current_passengers")
-    private Integer currentPassengers;
 }
