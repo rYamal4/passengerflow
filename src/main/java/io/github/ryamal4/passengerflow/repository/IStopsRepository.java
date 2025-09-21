@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface IStopsRepository extends JpaRepository<Stop, Long> {
 
+    // TODO optimize this query
     @NativeQuery("""
             SELECT s.*,
                    (6371 * acos(
