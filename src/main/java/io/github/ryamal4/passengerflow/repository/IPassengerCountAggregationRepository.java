@@ -16,6 +16,7 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
     @Query("DELETE FROM PassengerCountAggregation p WHERE p.dayOfWeek = :dayOfWeek")
     void deleteByDayOfWeek(@Param("dayOfWeek") Integer dayOfWeek);
 
+    // TODO check correctness of this query
     @Modifying
     @Query(value = """
             WITH passenger_loads AS (
