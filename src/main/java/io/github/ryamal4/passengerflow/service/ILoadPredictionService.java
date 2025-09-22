@@ -1,6 +1,6 @@
 package io.github.ryamal4.passengerflow.service;
 
-import io.github.ryamal4.passengerflow.model.RoutePredictionDTO;
+import io.github.ryamal4.passengerflow.model.dto.RoutePredictionDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;

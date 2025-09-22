@@ -1,6 +1,9 @@
 package io.github.ryamal4.passengerflow.controller;
 
-import io.github.ryamal4.passengerflow.model.*;
+import io.github.ryamal4.passengerflow.model.PassengerCount;
+import io.github.ryamal4.passengerflow.model.dto.BusDTO;
+import io.github.ryamal4.passengerflow.model.dto.PassengerCountDTO;
+import io.github.ryamal4.passengerflow.model.dto.StopDTO;
 import io.github.ryamal4.passengerflow.service.passenger.IPassengerCountService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -64,7 +67,7 @@ public class PassengerCountController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PassengerCountDTO> updateCount(@PathVariable Long id,
-                                                        @RequestBody @Valid PassengerCountDTO dto) {
+                                                         @RequestBody @Valid PassengerCountDTO dto) {
         try {
             PassengerCountDTO updated = passengerCountService.updateCount(id, dto);
             return ResponseEntity.ok(updated);

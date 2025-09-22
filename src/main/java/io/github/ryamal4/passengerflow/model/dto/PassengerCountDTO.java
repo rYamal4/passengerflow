@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.model;
+package io.github.ryamal4.passengerflow.model.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,11 @@
 package io.github.ryamal4.passengerflow.service.passenger;
 
-import io.github.ryamal4.passengerflow.model.*;
+import io.github.ryamal4.passengerflow.model.Bus;
+import io.github.ryamal4.passengerflow.model.PassengerCount;
+import io.github.ryamal4.passengerflow.model.Stop;
+import io.github.ryamal4.passengerflow.model.dto.BusDTO;
+import io.github.ryamal4.passengerflow.model.dto.PassengerCountDTO;
+import io.github.ryamal4.passengerflow.model.dto.StopDTO;
 import io.github.ryamal4.passengerflow.repository.IBusRepository;
 import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;
 import io.github.ryamal4.passengerflow.repository.IStopsRepository;
