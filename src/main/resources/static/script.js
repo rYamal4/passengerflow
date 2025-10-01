@@ -71,11 +71,11 @@ class ApiService {
     }
 
     static async getBuses() {
-        return this.request(`${API_BASE_URL}/buses`);
+        return this.request(`/api/buses`);
     }
 
     static async getStops() {
-        return this.request(`${API_BASE_URL}/stops`);
+        return this.request(`/api/stops`);
     }
 }
 
