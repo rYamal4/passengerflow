@@ -18,8 +18,6 @@ public interface IPassengerCountService {
 
     Optional<PassengerCountDTO> getCountById(Long id);
 
-    Page<PassengerCountDTO> getAllCounts(Pageable pageable);
-
     Page<PassengerCountDTO> getCountsByFilters(Long busId, Long stopId, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable);
 
     PassengerCountDTO updateCount(Long id, PassengerCountDTO dto);

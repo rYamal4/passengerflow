@@ -28,7 +28,11 @@ public class PassengerCountController {
 
     @PostMapping
     public ResponseEntity<PassengerCountDTO> createCount(@RequestBody @Valid PassengerCountDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(passengerCountService.createCountFromDTO(dto));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(passengerCountService.createCountFromDTO(dto));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping
@@ -41,13 +45,7 @@ public class PassengerCountController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<PassengerCountDTO> result;
-
-        if (busId != null || stopId != null || startTime != null || endTime != null) {
-            result = passengerCountService.getCountsByFilters(busId, stopId, startTime, endTime, pageable);
-        } else {
-            result = passengerCountService.getAllCounts(pageable);
-        }
+        Page<PassengerCountDTO> result = passengerCountService.getCountsByFilters(busId, stopId, startTime, endTime, pageable);
 
         return ResponseEntity.ok(result);
     }
@@ -65,8 +63,10 @@ public class PassengerCountController {
         try {
             PassengerCountDTO updated = passengerCountService.updateCount(id, dto);
             return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -75,7 +75,7 @@ public class PassengerCountController {
         try {
             passengerCountService.deleteCount(id);
             return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }
