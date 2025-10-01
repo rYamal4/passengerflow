@@ -47,7 +47,7 @@ class ApiService {
     }
 
     static async createRecord(data) {
-        return this.request(`${API_BASE_URL}/dto`, {
+        return this.request(`${API_BASE_URL}`, {
             method: 'POST',
             body: JSON.stringify(data),
         });

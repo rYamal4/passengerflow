@@ -4,11 +4,6 @@ spring:
   application:
     name: passengerflow
     version: 0.0.1
-  datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
 open-meteo:
   api:
     url: https://api.open-meteo.com/v1/forecast
@@ -21,6 +16,11 @@ spring:
     hibernate:
       ddl-auto: update
   show-sql: true
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 server:
   port: 8080
 ---

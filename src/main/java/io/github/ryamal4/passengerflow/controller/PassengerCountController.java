@@ -1,6 +1,5 @@
 package io.github.ryamal4.passengerflow.controller;
 
-import io.github.ryamal4.passengerflow.model.PassengerCount;
 import io.github.ryamal4.passengerflow.dto.BusDTO;
 import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
 import io.github.ryamal4.passengerflow.dto.StopDTO;
@@ -28,12 +27,7 @@ public class PassengerCountController {
     }
 
     @PostMapping
-    public ResponseEntity<PassengerCount> createCount(@RequestBody @Valid PassengerCount count) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(passengerCountService.createCount(count));
-    }
-
-    @PostMapping("/dto")
-    public ResponseEntity<PassengerCountDTO> createCountFromDTO(@RequestBody @Valid PassengerCountDTO dto) {
+    public ResponseEntity<PassengerCountDTO> createCount(@RequestBody @Valid PassengerCountDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(passengerCountService.createCountFromDTO(dto));
     }
 
