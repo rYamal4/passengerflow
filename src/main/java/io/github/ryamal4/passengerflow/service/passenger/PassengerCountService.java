@@ -3,15 +3,19 @@ package io.github.ryamal4.passengerflow.service.passenger;
 import io.github.ryamal4.passengerflow.model.Bus;
 import io.github.ryamal4.passengerflow.model.PassengerCount;
 import io.github.ryamal4.passengerflow.model.Stop;
-import io.github.ryamal4.passengerflow.model.dto.BusDTO;
-import io.github.ryamal4.passengerflow.model.dto.PassengerCountDTO;
-import io.github.ryamal4.passengerflow.model.dto.StopDTO;
+import io.github.ryamal4.passengerflow.dto.BusDTO;
+import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
+import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.repository.IBusRepository;
 import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;
 import io.github.ryamal4.passengerflow.repository.IStopsRepository;
+import io.github.ryamal4.passengerflow.specification.PassengerCountSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -61,7 +65,14 @@ public class PassengerCountService implements IPassengerCountService {
     public Page<PassengerCountDTO> getCountsByFilters(Long busId, Long stopId,
                                                       LocalDateTime startTime, LocalDateTime endTime,
                                                       Pageable pageable) {
-        return passengerCountRepository.findByFilters(busId, stopId, startTime, endTime, pageable)
+        var spec = PassengerCountSpecification.withFilters(busId, stopId, startTime, endTime);
+        Pageable pageableWithSort = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "timestamp")
+        );
+
+        return passengerCountRepository.findAll(spec, pageableWithSort)
                 .map(this::convertToDTO);
     }
 

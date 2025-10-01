@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Slf4j
 public class PassengerCountAggregationJob {
-
     private final IPassengerCountAggregationService aggregationService;
 
     @Scheduled(cron = "0 0 4 * * *")

@@ -1,9 +1,9 @@
 package io.github.ryamal4.passengerflow.service.passenger;
 
 import io.github.ryamal4.passengerflow.model.PassengerCount;
-import io.github.ryamal4.passengerflow.model.dto.BusDTO;
-import io.github.ryamal4.passengerflow.model.dto.PassengerCountDTO;
-import io.github.ryamal4.passengerflow.model.dto.StopDTO;
+import io.github.ryamal4.passengerflow.dto.BusDTO;
+import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
+import io.github.ryamal4.passengerflow.dto.StopDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

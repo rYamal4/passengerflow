@@ -1,9 +1,9 @@
 package io.github.ryamal4.passengerflow.controller;
 
 import io.github.ryamal4.passengerflow.model.PassengerCount;
-import io.github.ryamal4.passengerflow.model.dto.BusDTO;
-import io.github.ryamal4.passengerflow.model.dto.PassengerCountDTO;
-import io.github.ryamal4.passengerflow.model.dto.StopDTO;
+import io.github.ryamal4.passengerflow.dto.BusDTO;
+import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
+import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.service.passenger.IPassengerCountService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
