@@ -1,14 +1,11 @@
 package io.github.ryamal4.passengerflow.service.passenger;
 
 import io.github.ryamal4.passengerflow.model.PassengerCount;
-import io.github.ryamal4.passengerflow.dto.BusDTO;
 import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
-import io.github.ryamal4.passengerflow.dto.StopDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface IPassengerCountService {
@@ -23,8 +20,4 @@ public interface IPassengerCountService {
     PassengerCountDTO updateCount(Long id, PassengerCountDTO dto);
 
     void deleteCount(Long id);
-
-    List<BusDTO> getAllBuses();
-
-    List<StopDTO> getAllStops();
 }

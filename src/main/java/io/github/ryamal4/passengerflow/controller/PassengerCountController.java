@@ -1,8 +1,6 @@
 package io.github.ryamal4.passengerflow.controller;
 
-import io.github.ryamal4.passengerflow.dto.BusDTO;
 import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
-import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.service.passenger.IPassengerCountService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -14,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/passengers")
@@ -80,13 +77,4 @@ public class PassengerCountController {
         }
     }
 
-    @GetMapping("/buses")
-    public ResponseEntity<List<BusDTO>> getAllBuses() {
-        return ResponseEntity.ok(passengerCountService.getAllBuses());
-    }
-
-    @GetMapping("/stops")
-    public ResponseEntity<List<StopDTO>> getAllStops() {
-        return ResponseEntity.ok(passengerCountService.getAllStops());
-    }
 }

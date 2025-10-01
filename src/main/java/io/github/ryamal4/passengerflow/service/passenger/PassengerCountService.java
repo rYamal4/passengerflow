@@ -105,19 +105,6 @@ public class PassengerCountService implements IPassengerCountService {
         passengerCountRepository.deleteById(id);
     }
 
-    @Override
-    public List<BusDTO> getAllBuses() {
-        return busRepository.findAll().stream()
-                .map(this::convertBusToDTO)
-                .toList();
-    }
-
-    @Override
-    public List<StopDTO> getAllStops() {
-        return stopsRepository.findAll().stream()
-                .map(this::convertStopToDTO)
-                .toList();
-    }
 
     private PassengerCountDTO convertToDTO(PassengerCount entity) {
         PassengerCountDTO dto = new PassengerCountDTO();
@@ -152,27 +139,4 @@ public class PassengerCountService implements IPassengerCountService {
         return entity;
     }
 
-    private BusDTO convertBusToDTO(Bus entity) {
-        var dto = new BusDTO();
-
-        dto.setId(entity.getId());
-        dto.setModel(entity.getModel());
-        dto.setRouteId(entity.getRoute().getId());
-        dto.setRouteName(entity.getRoute().getName());
-
-        return dto;
-    }
-
-    private StopDTO convertStopToDTO(Stop entity) {
-        var dto = new StopDTO();
-
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setLat(entity.getLat());
-        dto.setLon(entity.getLon());
-        dto.setRouteId(entity.getRoute().getId());
-        dto.setRouteName(entity.getRoute().getName());
-
-        return dto;
-    }
 }
