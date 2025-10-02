@@ -1,5 +1,6 @@
-package io.github.ryamal4.passengerflow.model;
+package io.github.ryamal4.passengerflow.dto;
 
+import io.github.ryamal4.passengerflow.model.Route;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

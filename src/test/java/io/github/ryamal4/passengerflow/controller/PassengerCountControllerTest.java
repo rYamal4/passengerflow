@@ -76,7 +76,7 @@ class PassengerCountControllerTest {
 
         when(passengerCountService.createCount(passengerCount)).thenReturn(savedCount);
 
-        mockMvc.perform(post("/passengers")
+        mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(passengerCount)))
                 .andExpect(status().isCreated())
@@ -117,7 +117,7 @@ class PassengerCountControllerTest {
 
     @Test
     void testCreateCountEmptyBody() throws Exception {
-        mockMvc.perform(post("/passengers")
+        mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
@@ -134,7 +134,7 @@ class PassengerCountControllerTest {
     }
 
     private void assertBadRequest() throws Exception {
-        mockMvc.perform(post("/passengers")
+        mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(passengerCount)))
                 .andExpect(status().isBadRequest());

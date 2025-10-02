@@ -1,22 +1,26 @@
 package io.github.ryamal4.passengerflow.controller;
 
+import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.model.Stop;
 import io.github.ryamal4.passengerflow.service.stop.IStopsService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/stops")
+@RequestMapping("/api/stops")
+@CrossOrigin(origins = "*")
 public class StopsController {
     private final IStopsService stopsService;
 
     public StopsController(IStopsService stopsService) {
         this.stopsService = stopsService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<StopDTO>> getAllStops() {
+        return ResponseEntity.ok(stopsService.getAllStops());
     }
 
     @GetMapping("/nearby")

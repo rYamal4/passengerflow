@@ -1,0 +1,17 @@
+package io.github.ryamal4.passengerflow.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class StopDTO {
+    private Long id;
+    private String name;
+    private Double lat;
+    private Double lon;
+    private Long routeId;
+    private String routeName;
+}

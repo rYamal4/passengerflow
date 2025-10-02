@@ -1,21 +1,142 @@
 package io.github.ryamal4.passengerflow.service.passenger;
 
+import io.github.ryamal4.passengerflow.model.Bus;
 import io.github.ryamal4.passengerflow.model.PassengerCount;
+import io.github.ryamal4.passengerflow.model.Stop;
+import io.github.ryamal4.passengerflow.dto.BusDTO;
+import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
+import io.github.ryamal4.passengerflow.dto.StopDTO;
+import io.github.ryamal4.passengerflow.repository.IBusRepository;
 import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;
+import io.github.ryamal4.passengerflow.repository.IStopsRepository;
+import io.github.ryamal4.passengerflow.specification.PassengerCountSpecification;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
 public class PassengerCountService implements IPassengerCountService {
     private final IPassengerCountRepository passengerCountRepository;
+    private final IBusRepository busRepository;
+    private final IStopsRepository stopsRepository;
 
-    public PassengerCountService(IPassengerCountRepository passengerCountRepository) {
+    public PassengerCountService(IPassengerCountRepository passengerCountRepository,
+                                 IBusRepository busRepository,
+                                 IStopsRepository stopsRepository) {
         this.passengerCountRepository = passengerCountRepository;
+        this.busRepository = busRepository;
+        this.stopsRepository = stopsRepository;
     }
 
     @Override
     public PassengerCount createCount(PassengerCount count) {
         return passengerCountRepository.save(count);
     }
+
+    @Override
+    public PassengerCountDTO createCountFromDTO(PassengerCountDTO dto) {
+        PassengerCount count = convertToEntity(dto);
+        PassengerCount saved = passengerCountRepository.save(count);
+        return convertToDTO(saved);
+    }
+
+    @Override
+    public Optional<PassengerCountDTO> getCountById(Long id) {
+        return passengerCountRepository.findById(id)
+                .map(this::convertToDTO);
+    }
+
+    @Override
+    public Page<PassengerCountDTO> getCountsByFilters(Long busId, Long stopId,
+                                                      LocalDateTime startTime, LocalDateTime endTime,
+                                                      Pageable pageable) {
+        var spec = PassengerCountSpecification.withFilters(busId, stopId, startTime, endTime);
+        Pageable pageableWithSort = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "timestamp")
+        );
+
+        return passengerCountRepository.findAll(spec, pageableWithSort)
+                .map(this::convertToDTO);
+    }
+
+    @Override
+    public PassengerCountDTO updateCount(Long id, PassengerCountDTO dto) {
+        PassengerCount existing = passengerCountRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("PassengerCount not found with id: " + id));
+
+        // Update fields
+        existing.setEntered(dto.getEntered());
+        existing.setExited(dto.getExited());
+        existing.setTimestamp(dto.getTimestamp());
+
+        // Update relationships if changed
+        if (!existing.getBus().getId().equals(dto.getBusId())) {
+            Bus bus = busRepository.findById(dto.getBusId())
+                    .orElseThrow(() -> new IllegalStateException("Bus not found with id: " + dto.getBusId()));
+            existing.setBus(bus);
+        }
+
+        if (!existing.getStop().getId().equals(dto.getStopId())) {
+            Stop stop = stopsRepository.findById(dto.getStopId())
+                    .orElseThrow(() -> new IllegalStateException("Stop not found with id: " + dto.getStopId()));
+            existing.setStop(stop);
+        }
+
+        PassengerCount updated = passengerCountRepository.save(existing);
+        return convertToDTO(updated);
+    }
+
+    @Override
+    public void deleteCount(Long id) {
+        if (!passengerCountRepository.existsById(id)) {
+            throw new IllegalArgumentException("PassengerCount not found with id: " + id);
+        }
+        passengerCountRepository.deleteById(id);
+    }
+
+
+    private PassengerCountDTO convertToDTO(PassengerCount entity) {
+        PassengerCountDTO dto = new PassengerCountDTO();
+
+        dto.setId(entity.getId());
+        dto.setBusId(entity.getBus().getId());
+        dto.setStopId(entity.getStop().getId());
+        dto.setEntered(entity.getEntered());
+        dto.setExited(entity.getExited());
+        dto.setTimestamp(entity.getTimestamp());
+        dto.setBusModel(entity.getBus().getModel());
+        dto.setStopName(entity.getStop().getName());
+        dto.setRouteName(entity.getStop().getRoute().getName());
+
+        return dto;
+    }
+
+    private PassengerCount convertToEntity(PassengerCountDTO dto) {
+        var entity = new PassengerCount();
+        entity.setEntered(dto.getEntered());
+        entity.setExited(dto.getExited());
+        entity.setTimestamp(dto.getTimestamp());
+
+        var bus = busRepository.findById(dto.getBusId())
+                .orElseThrow(() -> new IllegalStateException("Bus not found with id: " + dto.getBusId()));
+        entity.setBus(bus);
+
+        Stop stop = stopsRepository.findById(dto.getStopId())
+                .orElseThrow(() -> new IllegalStateException("Stop not found with id: " + dto.getStopId()));
+        entity.setStop(stop);
+
+        return entity;
+    }
+
 }
