@@ -1,11 +1,9 @@
 package io.github.ryamal4.passengerflow.service.passenger;
 
+import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
 import io.github.ryamal4.passengerflow.model.Bus;
 import io.github.ryamal4.passengerflow.model.PassengerCount;
 import io.github.ryamal4.passengerflow.model.Stop;
-import io.github.ryamal4.passengerflow.dto.BusDTO;
-import io.github.ryamal4.passengerflow.dto.PassengerCountDTO;
-import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.repository.IBusRepository;
 import io.github.ryamal4.passengerflow.repository.IPassengerCountRepository;
 import io.github.ryamal4.passengerflow.repository.IStopsRepository;
@@ -15,11 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service

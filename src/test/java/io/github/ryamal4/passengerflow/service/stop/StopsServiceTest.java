@@ -1,5 +1,6 @@
 package io.github.ryamal4.passengerflow.service.stop;
 
+import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.model.Route;
 import io.github.ryamal4.passengerflow.model.Stop;
 import io.github.ryamal4.passengerflow.repository.IStopsRepository;
@@ -112,5 +113,60 @@ class StopsServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isEqualTo(stop1);
         verify(stopsRepository).findNearbyStops(lat, lon, 5);
+    }
+
+    @Test
+    void testGetAllStopsSuccess() {
+        List<Stop> stops = List.of(stop1, stop2, stop3);
+
+        when(stopsRepository.findAll()).thenReturn(stops);
+
+        List<StopDTO> result = stopsService.getAllStops();
+
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0).getId()).isEqualTo(1L);
+        assertThat(result.get(0).getName()).isEqualTo("Stop 1");
+        assertThat(result.get(0).getLat()).isEqualTo(60.1695);
+        assertThat(result.get(0).getLon()).isEqualTo(24.9354);
+        assertThat(result.get(0).getRouteId()).isEqualTo(1L);
+        assertThat(result.get(0).getRouteName()).isEqualTo("Test Route");
+
+        assertThat(result.get(1).getId()).isEqualTo(2L);
+        assertThat(result.get(1).getName()).isEqualTo("Stop 2");
+
+        assertThat(result.get(2).getId()).isEqualTo(3L);
+        assertThat(result.get(2).getName()).isEqualTo("Stop 3");
+
+        verify(stopsRepository).findAll();
+    }
+
+    @Test
+    void testGetAllStopsEmptyResult() {
+        when(stopsRepository.findAll()).thenReturn(List.of());
+
+        List<StopDTO> result = stopsService.getAllStops();
+
+        assertThat(result).isEmpty();
+        verify(stopsRepository).findAll();
+    }
+
+    @Test
+    void testGetAllStopsConvertsToDTO() {
+        List<Stop> stops = List.of(stop1);
+
+        when(stopsRepository.findAll()).thenReturn(stops);
+
+        List<StopDTO> result = stopsService.getAllStops();
+
+        assertThat(result).hasSize(1);
+        StopDTO dto = result.get(0);
+        assertThat(dto.getId()).isEqualTo(stop1.getId());
+        assertThat(dto.getName()).isEqualTo(stop1.getName());
+        assertThat(dto.getLat()).isEqualTo(stop1.getLat());
+        assertThat(dto.getLon()).isEqualTo(stop1.getLon());
+        assertThat(dto.getRouteId()).isEqualTo(stop1.getRoute().getId());
+        assertThat(dto.getRouteName()).isEqualTo(stop1.getRoute().getName());
+
+        verify(stopsRepository).findAll();
     }
 }

@@ -1,6 +1,7 @@
 package io.github.ryamal4.passengerflow.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.model.Route;
 import io.github.ryamal4.passengerflow.model.Stop;
 import io.github.ryamal4.passengerflow.service.stop.IStopsService;
@@ -108,5 +109,34 @@ class StopsControllerTest {
                         .param("lat", "60.0")
                         .param("lon", "invalid"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetAllStopsSuccess() throws Exception {
+        StopDTO stopDTO = new StopDTO(1L, "Test Stop", 60.0, 24.0, 1L, "Test Route");
+        List<StopDTO> stops = List.of(stopDTO);
+
+        when(stopsService.getAllStops()).thenReturn(stops);
+
+        mockMvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Test Stop"))
+                .andExpect(jsonPath("$[0].lat").value(60.0))
+                .andExpect(jsonPath("$[0].lon").value(24.0))
+                .andExpect(jsonPath("$[0].routeId").value(1))
+                .andExpect(jsonPath("$[0].routeName").value("Test Route"));
+    }
+
+    @Test
+    void testGetAllStopsEmptyList() throws Exception {
+        when(stopsService.getAllStops()).thenReturn(List.of());
+
+        mockMvc.perform(get(BASE_URL))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 }
