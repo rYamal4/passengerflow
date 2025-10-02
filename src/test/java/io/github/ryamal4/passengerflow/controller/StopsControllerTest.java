@@ -21,6 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(StopsController.class)
 class StopsControllerTest {
 
+    private static final String BASE_URL = "/api/stops";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -52,7 +54,7 @@ class StopsControllerTest {
 
         when(stopsService.getNearbyStops(60.0, 24.0)).thenReturn(stops);
 
-        mockMvc.perform(get("/stops/nearby")
+        mockMvc.perform(get(BASE_URL + "/nearby")
                         .param("lat", "60.0")
                         .param("lon", "24.0"))
                 .andExpect(status().isOk())
@@ -69,7 +71,7 @@ class StopsControllerTest {
     void testGetNearbyStopsEmptyList() throws Exception {
         when(stopsService.getNearbyStops(0.0, 0.0)).thenReturn(List.of());
 
-        mockMvc.perform(get("/stops/nearby")
+        mockMvc.perform(get(BASE_URL + "/nearby")
                         .param("lat", "0.0")
                         .param("lon", "0.0"))
                 .andExpect(status().isOk())
@@ -80,21 +82,21 @@ class StopsControllerTest {
 
     @Test
     void testGetNearbyStopsMissingLatParam() throws Exception {
-        mockMvc.perform(get("/stops/nearby")
+        mockMvc.perform(get(BASE_URL+ "/nearby")
                         .param("lon", "24.0"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testGetNearbyStopsMissingLonParam() throws Exception {
-        mockMvc.perform(get("/stops/nearby")
+        mockMvc.perform(get(BASE_URL + "/nearby")
                         .param("lat", "60.0"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void testGetNearbyStopsInvalidLatParam() throws Exception {
-        mockMvc.perform(get("/stops/nearby")
+        mockMvc.perform(get(BASE_URL + "/nearby")
                         .param("lat", "invalid")
                         .param("lon", "24.0"))
                 .andExpect(status().isBadRequest());
@@ -102,7 +104,7 @@ class StopsControllerTest {
 
     @Test
     void testGetNearbyStopsInvalidLonParam() throws Exception {
-        mockMvc.perform(get("/stops/nearby")
+        mockMvc.perform(get(BASE_URL + "/nearby")
                         .param("lat", "60.0")
                         .param("lon", "invalid"))
                 .andExpect(status().isBadRequest());
