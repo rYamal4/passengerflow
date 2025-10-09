@@ -11,10 +11,15 @@
 <header class="page-header">
     <div class="container">
         <h1>Управление записями пассажиропотока</h1>
-        <button class="btn btn-primary" id="addNewRecord">
-            <i class="icon">+</i>
-            Добавить запись
-        </button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-primary" id="addNewRecord">
+                <i class="icon">+</i>
+                Добавить запись
+            </button>
+            <button class="btn btn-secondary" id="aggregateData">
+                📊 Агрегация
+            </button>
+        </div>
     </div>
 </header>
 
@@ -187,6 +192,35 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" id="confirmCancel">Отмена</button>
             <button type="button" class="btn btn-danger" id="confirmDelete">Удалить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Aggregation Dialog -->
+<div class="modal-overlay" id="aggregationOverlay" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Агрегация данных</h2>
+            <button class="modal-close" id="aggregationClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Выберите день недели для агрегации пассажиропотока:</p>
+            <div class="form-group">
+                <label for="dayOfWeekSelect">День недели:</label>
+                <select id="dayOfWeekSelect" class="form-select">
+                    <option value="1">Понедельник</option>
+                    <option value="2">Вторник</option>
+                    <option value="3">Среда</option>
+                    <option value="4">Четверг</option>
+                    <option value="5">Пятница</option>
+                    <option value="6">Суббота</option>
+                    <option value="7">Воскресенье</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="aggregationCancel">Отмена</button>
+            <button type="button" class="btn btn-primary" id="aggregationConfirm">Выполнить</button>
         </div>
     </div>
 </div>

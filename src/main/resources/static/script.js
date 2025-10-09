@@ -77,6 +77,16 @@ class ApiService {
     static async getStops() {
         return this.request(`/api/stops`);
     }
+
+    static async performAggregation(dayOfWeek) {
+        const response = await fetch(`/api/aggregation?dayOfWeek=${dayOfWeek}`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+    }
 }
 
 // UI Manager
@@ -166,6 +176,15 @@ class UIManager {
         document.getElementById('confirmationOverlay').style.display = 'none';
     }
 
+    static showAggregationModal() {
+        const overlay = document.getElementById('aggregationOverlay');
+        overlay.style.display = 'flex';
+    }
+
+    static hideAggregationModal() {
+        document.getElementById('aggregationOverlay').style.display = 'none';
+    }
+
     static renderTable(data) {
         const tbody = document.getElementById('tableBody');
         const emptyState = document.getElementById('emptyState');
@@ -209,8 +228,8 @@ class UIManager {
         const nextBtn = document.getElementById('nextPage');
         const lastBtn = document.getElementById('lastPage');
 
-        const { number, size, totalElements, totalPages } = data;
-        const start = number * size + 1;
+        const { number = 0, size = DEFAULT_PAGE_SIZE, totalElements = 0, totalPages = 0 } = data;
+        const start = totalElements > 0 ? number * size + 1 : 0;
         const end = Math.min((number + 1) * size, totalElements);
 
         info.textContent = `Записи ${start}-${end} из ${totalElements}`;
@@ -278,7 +297,7 @@ class UIManager {
     }
 
     static showBusInfo(bus) {
-        return `${bus.model} (${bus.routeName})`;
+        return `${bus.busModelName} (${bus.routeName})`;
     }
 
     static showStopInfo(stop) {
@@ -424,7 +443,7 @@ async function loadReferenceData() {
         stops = stopsData;
 
         // Populate filter selects
-        UIManager.populateSelect('busFilter', buses, 'id', 'model', 'Все автобусы');
+        UIManager.populateSelect('busFilter', buses, 'id', 'busModelName', 'Все автобусы');
         UIManager.populateSelect('stopFilter', stops, 'id', 'name', 'Все остановки');
 
         // Populate modal selects with more detailed info
@@ -435,7 +454,7 @@ async function loadReferenceData() {
         buses.forEach(bus => {
             const option = document.createElement('option');
             option.value = bus.id;
-            option.textContent = `${bus.model} (Маршрут: ${bus.routeName})`;
+            option.textContent = `${bus.busModelName} (Маршрут: ${bus.routeName})`;
             modalBusSelect.appendChild(option);
         });
 
@@ -562,14 +581,43 @@ function handlePageSizeChange() {
     loadData(0, newSize, currentFilters);
 }
 
+function handleAggregateClick() {
+    UIManager.showAggregationModal();
+}
+
+async function handleAggregationConfirm() {
+    const dayOfWeekSelect = document.getElementById('dayOfWeekSelect');
+    const dayOfWeek = parseInt(dayOfWeekSelect.value);
+    const confirmBtn = document.getElementById('aggregationConfirm');
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Выполняется...';
+
+    try {
+        await ApiService.performAggregation(dayOfWeek);
+        ToastManager.success('Агрегация успешно выполнена');
+        UIManager.hideAggregationModal();
+    } catch (error) {
+        console.error('Error performing aggregation:', error);
+        ToastManager.error('Не удалось выполнить агрегацию: ' + error.message);
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Выполнить';
+    }
+}
+
 // Initialize Application
 document.addEventListener('DOMContentLoaded', async () => {
     // Set up event listeners
     document.getElementById('addNewRecord').onclick = handleAddClick;
+    document.getElementById('aggregateData').onclick = handleAggregateClick;
     document.getElementById('recordForm').onsubmit = handleFormSubmit;
     document.getElementById('modalClose').onclick = UIManager.hideModal;
     document.getElementById('modalCancel').onclick = UIManager.hideModal;
     document.getElementById('confirmCancel').onclick = UIManager.hideConfirmationDialog;
+    document.getElementById('aggregationClose').onclick = UIManager.hideAggregationModal;
+    document.getElementById('aggregationCancel').onclick = UIManager.hideAggregationModal;
+    document.getElementById('aggregationConfirm').onclick = handleAggregationConfirm;
 
     document.getElementById('applyFilters').onclick = handleFiltersApply;
     document.getElementById('clearFilters').onclick = handleFiltersClear;
@@ -591,12 +639,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('confirmationOverlay').onclick = (e) => {
         if (e.target === e.currentTarget) UIManager.hideConfirmationDialog();
     };
+    document.getElementById('aggregationOverlay').onclick = (e) => {
+        if (e.target === e.currentTarget) UIManager.hideAggregationModal();
+    };
 
     // Close modals on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             UIManager.hideModal();
             UIManager.hideConfirmationDialog();
+            UIManager.hideAggregationModal();
         }
     });
 
