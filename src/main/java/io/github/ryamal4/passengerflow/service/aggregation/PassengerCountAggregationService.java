@@ -15,7 +15,7 @@ public class PassengerCountAggregationService implements IPassengerCountAggregat
     private final IPassengerCountAggregationRepository aggregationRepository;
 
     @Transactional
-    public void performDailyAggregation(DayOfWeek targetDayOfWeek) {
+    public void performAggregation(DayOfWeek targetDayOfWeek) {
         log.info("Starting daily aggregation for day of week: {}", targetDayOfWeek);
         int dayOfWeekValue = targetDayOfWeek.getValue();
 

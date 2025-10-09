@@ -17,10 +17,10 @@ public class PassengerCountAggregationJob {
     @Scheduled(cron = "0 0 4 * * *")
     public void performDailyAggregation() {
         try {
-            LocalDate yesterday = LocalDate.now().minusDays(1);
-            log.info("Starting daily passenger count aggregation job for day of week: {}", yesterday.getDayOfWeek());
-            aggregationService.performDailyAggregation(yesterday.getDayOfWeek());
-            log.info("Daily passenger count aggregation job completed successfully");
+            var yesterdayDayOfWeek = LocalDate.now().minusDays(1).getDayOfWeek();
+            log.info("Starting daily passenger count aggregation job for day of week: {}", yesterdayDayOfWeek);
+            aggregationService.performAggregation(yesterdayDayOfWeek);
+            log.info("Daily passenger count aggregation job for {} completed successfully", yesterdayDayOfWeek);
         } catch (Exception e) {
             log.error("Error during daily passenger count aggregation", e);
             throw e;
