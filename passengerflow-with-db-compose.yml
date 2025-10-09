@@ -2,8 +2,9 @@ services:
   passengerflow:
     build: .
     ports:
-      - "8080:8080"
+      - "9001:9001"
     environment:
+      - SPRING_PROFILES_ACTIVE=prod
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${DB_NAME}
@@ -23,6 +24,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./pgdump.sql:/docker-entrypoint-initdb.d/pgdump.sql:ro
     restart: unless-stopped
 
 volumes:
