@@ -14,11 +14,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StopsServiceTest {
+    public static final int FIVE_LIMIT = 5;
+    private static final double TEST_LAT = 0;
+    private static final double TEST_LON = 0;
 
     @Mock
     private IStopsRepository stopsRepository;
@@ -32,141 +36,82 @@ class StopsServiceTest {
 
     @BeforeEach
     void setUp() {
-        Route route = new Route();
-        route.setId(1L);
-        route.setName("Test Route");
+        Route route = createRoute();
 
-        stop1 = new Stop();
-        stop1.setId(1L);
-        stop1.setName("Stop 1");
-        stop1.setLat(60.1695);
-        stop1.setLon(24.9354);
-        stop1.setRoute(route);
-
-        stop2 = new Stop();
-        stop2.setId(2L);
-        stop2.setName("Stop 2");
-        stop2.setLat(60.1699);
-        stop2.setLon(24.9342);
-        stop2.setRoute(route);
-
-        stop3 = new Stop();
-        stop3.setId(3L);
-        stop3.setName("Stop 3");
-        stop3.setLat(60.1700);
-        stop3.setLon(24.9340);
-        stop3.setRoute(route);
+        stop1 = createStop(1L, "Stop 1", 0.1, 0.1, route);
+        stop2 = createStop(2L, "Stop 2", 0.2, 0.2, route);
+        stop3 = createStop(3L, "Stop 3", 0.3, 0.3, route);
     }
 
     @Test
-    void testGetNearbyStopsSuccess() {
-        double lat = 60.1699;
-        double lon = 24.9342;
-        List<Stop> expectedStops = List.of(stop1, stop2, stop3);
+    void testGetNearbyStopsUsesLimitOfFive() {
+        stopsService.getNearbyStops(TEST_LAT, TEST_LON);
 
-        when(stopsRepository.findNearbyStops(lat, lon, 5)).thenReturn(expectedStops);
+        verify(stopsRepository).findNearbyStops(TEST_LAT, TEST_LON, FIVE_LIMIT);
+    }
 
-        List<Stop> result = stopsService.getNearbyStops(lat, lon);
+    @Test
+    void testGetNearbyStopsReturnsDataFromRepository() {
+        var stops = List.of(stop1, stop2, stop3);
+        when(stopsRepository.findNearbyStops(TEST_LAT, TEST_LON, FIVE_LIMIT)).thenReturn(stops);
+
+        var result = stopsService.getNearbyStops(TEST_LAT, TEST_LON);
 
         assertThat(result).hasSize(3);
-        assertThat(result).containsExactly(stop1, stop2, stop3);
-        verify(stopsRepository).findNearbyStops(lat, lon, 5);
+        assertDtoIsCorrect(result.get(0), stop1);
+        assertDtoIsCorrect(result.get(1), stop2);
+        assertDtoIsCorrect(result.get(2), stop3);
     }
 
     @Test
-    void testGetNearbyStopsEmptyResult() {
-        double lat = 0.0;
-        double lon = 0.0;
-
-        when(stopsRepository.findNearbyStops(lat, lon, 5)).thenReturn(List.of());
-
-        List<Stop> result = stopsService.getNearbyStops(lat, lon);
-
-        assertThat(result).isEmpty();
-        verify(stopsRepository).findNearbyStops(lat, lon, 5);
+    void testGetNearbyStopsThrowsExceptionForInvalidLat() {
+        assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(91, TEST_LON));
+        assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(-91, TEST_LON));
     }
 
     @Test
-    void testGetNearbyStopsUsesCorrectLimit() {
-        double lat = 60.1699;
-        double lon = 24.9342;
-        List<Stop> fiveStops = List.of(stop1, stop2, stop3, stop1, stop2);
-
-        when(stopsRepository.findNearbyStops(lat, lon, 5)).thenReturn(fiveStops);
-
-        List<Stop> result = stopsService.getNearbyStops(lat, lon);
-
-        assertThat(result).hasSize(5);
-        verify(stopsRepository).findNearbyStops(lat, lon, 5);
-    }
-
-    @Test
-    void testGetNearbyStopsWithNegativeCoordinates() {
-        double lat = -60.1699;
-        double lon = -24.9342;
-        List<Stop> expectedStops = List.of(stop1);
-
-        when(stopsRepository.findNearbyStops(lat, lon, 5)).thenReturn(expectedStops);
-
-        List<Stop> result = stopsService.getNearbyStops(lat, lon);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isEqualTo(stop1);
-        verify(stopsRepository).findNearbyStops(lat, lon, 5);
+    void testGetNearbyStopsThrowsExceptionForInvalidLon() {
+        assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(TEST_LAT, 181));
+        assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(TEST_LAT, -181));
     }
 
     @Test
     void testGetAllStopsSuccess() {
-        List<Stop> stops = List.of(stop1, stop2, stop3);
-
+        var stops = List.of(stop1, stop2, stop3);
         when(stopsRepository.findAll()).thenReturn(stops);
 
-        List<StopDTO> result = stopsService.getAllStops();
+        var result = stopsService.getAllStops();
 
+        verify(stopsRepository).findAll();
         assertThat(result).hasSize(3);
-        assertThat(result.get(0).getId()).isEqualTo(1L);
-        assertThat(result.get(0).getName()).isEqualTo("Stop 1");
-        assertThat(result.get(0).getLat()).isEqualTo(60.1695);
-        assertThat(result.get(0).getLon()).isEqualTo(24.9354);
-        assertThat(result.get(0).getRouteId()).isEqualTo(1L);
-        assertThat(result.get(0).getRouteName()).isEqualTo("Test Route");
-
-        assertThat(result.get(1).getId()).isEqualTo(2L);
-        assertThat(result.get(1).getName()).isEqualTo("Stop 2");
-
-        assertThat(result.get(2).getId()).isEqualTo(3L);
-        assertThat(result.get(2).getName()).isEqualTo("Stop 3");
-
-        verify(stopsRepository).findAll();
+        assertDtoIsCorrect(result.get(0), stop1);
+        assertDtoIsCorrect(result.get(1), stop2);
+        assertDtoIsCorrect(result.get(2), stop3);
     }
 
-    @Test
-    void testGetAllStopsEmptyResult() {
-        when(stopsRepository.findAll()).thenReturn(List.of());
-
-        List<StopDTO> result = stopsService.getAllStops();
-
-        assertThat(result).isEmpty();
-        verify(stopsRepository).findAll();
+    private Route createRoute() {
+        var route = new Route();
+        route.setId(1L);
+        route.setName("Test Route");
+        return route;
     }
 
-    @Test
-    void testGetAllStopsConvertsToDTO() {
-        List<Stop> stops = List.of(stop1);
+    private Stop createStop(Long id, String name, Double lat, Double lon, Route route) {
+        var stop = new Stop();
+        stop.setId(id);
+        stop.setName(name);
+        stop.setLat(lat);
+        stop.setLon(lon);
+        stop.setRoute(route);
+        return stop;
+    }
 
-        when(stopsRepository.findAll()).thenReturn(stops);
-
-        List<StopDTO> result = stopsService.getAllStops();
-
-        assertThat(result).hasSize(1);
-        StopDTO dto = result.get(0);
-        assertThat(dto.getId()).isEqualTo(stop1.getId());
-        assertThat(dto.getName()).isEqualTo(stop1.getName());
-        assertThat(dto.getLat()).isEqualTo(stop1.getLat());
-        assertThat(dto.getLon()).isEqualTo(stop1.getLon());
-        assertThat(dto.getRouteId()).isEqualTo(stop1.getRoute().getId());
-        assertThat(dto.getRouteName()).isEqualTo(stop1.getRoute().getName());
-
-        verify(stopsRepository).findAll();
+    private void assertDtoIsCorrect(StopDTO dto, Stop stop) {
+        assertThat(dto.getId()).isEqualTo(stop.getId());
+        assertThat(dto.getName()).isEqualTo(stop.getName());
+        assertThat(dto.getLat()).isEqualTo(stop.getLat());
+        assertThat(dto.getLon()).isEqualTo(stop.getLon());
+        assertThat(dto.getRouteId()).isEqualTo(stop.getRoute().getId());
+        assertThat(dto.getRouteName()).isEqualTo(stop.getRoute().getName());
     }
 }

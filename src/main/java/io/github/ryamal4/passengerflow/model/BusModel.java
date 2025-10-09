@@ -3,29 +3,33 @@ package io.github.ryamal4.passengerflow.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
-@Table(name = "permissions")
+@Table(name = "bus_models")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-public class Permission {
+public class BusModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String title;
+    private String name;
 
-    @ManyToMany(mappedBy = "permissions")
+    @Column
+    private Integer capacity;
+
+    @OneToMany(mappedBy = "busModel")
     @Setter(AccessLevel.PRIVATE)
-    Set<Role> roles = new HashSet<>();
+    private List<Bus> buses = new ArrayList<>();
 
-    public Set<Role> getRoles() {
-        return Collections.unmodifiableSet(roles);
+    public List<Bus> getBuses() {
+        return Collections.unmodifiableList(buses);
     }
 }

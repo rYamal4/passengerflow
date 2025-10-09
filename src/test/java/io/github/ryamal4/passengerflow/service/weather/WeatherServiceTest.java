@@ -12,8 +12,8 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,25 +23,22 @@ import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class WeatherServiceTest {
-
-    @Mock
-    private RestClient restClient;
-
-    @Mock
-    private RestClient.RequestHeadersUriSpec<?> requestHeadersUriSpec;
-
-    @Mock
-    private RestClient.RequestHeadersSpec<?> requestHeadersSpec;
-
-    @Mock
-    private RestClient.ResponseSpec responseSpec;
-
-    private WeatherService weatherService;
-
     private static final String API_URL = "https://test-api.com/";
     private static final double LATITUDE = 52.52;
     private static final double LONGITUDE = 13.41;
     private static final TimeZone TIMEZONE = TimeZone.getTimeZone("Europe/Moscow");
+    private static final LocalDateTime TEST_DATE_TIME = LocalDateTime.of(2025, 9, 4, 10, 0);
+    private static final int RAINY_WEATHER_CODE = 61;
+
+    @Mock
+    private RestClient restClient;
+    @Mock
+    private RestClient.RequestHeadersUriSpec<?> requestHeadersUriSpec;
+    @Mock
+    private RestClient.RequestHeadersSpec<?> requestHeadersSpec;
+    @Mock
+    private RestClient.ResponseSpec responseSpec;
+    private WeatherService weatherService;
 
     @BeforeEach
     void setUp() {
@@ -50,132 +47,64 @@ class WeatherServiceTest {
     }
 
     @Test
-    void testIsRaining_ReturnsTrueForRainyWeatherCode() {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 10, 0);
-
-        WeatherResponseDto mockResponse = createMockWeatherResponse(
-                Arrays.asList(3, 0, 1, 1, 1, 3, 3, 3, 2, 0, 61, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
-        );
-
-        doReturn(requestHeadersUriSpec).when(restClient).get();
-        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+    void testIsRainingReturnsTrueForRainyWeatherCode() {
+        var mockResponse = createMockWeatherResponseForHour(TEST_DATE_TIME.getHour(), RAINY_WEATHER_CODE);
+        setupRestClientMocks();
         doReturn(mockResponse).when(responseSpec).body(WeatherResponseDto.class);
 
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
+        var result = weatherService.isRaining(TEST_DATE_TIME, LATITUDE, LONGITUDE, TIMEZONE);
 
         assertThat(result).isTrue();
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "0, false",
-            "45, false",
-            "60, false"
-    })
-    void testIsRaining_ReturnsFalseForNonRainyWeatherCodes(int weatherCode, boolean expectedResult) {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 10, 0);
-
-        WeatherResponseDto mockResponse = createMockWeatherResponse(
-                Arrays.asList(3, 0, 1, 1, 1, 3, 3, 3, 2, 0, weatherCode, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
-        );
-
-        doReturn(requestHeadersUriSpec).when(restClient).get();
-        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+    @CsvSource({"0", "45", "60"})
+    void testIsRainingReturnsFalseForNonRainyWeatherCodes(int weatherCode) {
+        var mockResponse = createMockWeatherResponseForHour(TEST_DATE_TIME.getHour(), weatherCode);
+        setupRestClientMocks();
         doReturn(mockResponse).when(responseSpec).body(WeatherResponseDto.class);
 
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
+        var result = weatherService.isRaining(TEST_DATE_TIME, LATITUDE, LONGITUDE, TIMEZONE);
 
-        assertThat(result).isEqualTo(expectedResult);
+        assertThat(result).isFalse();
     }
 
     @Test
-    void testIsRaining_ReturnsFalseWhenResponseIsNull() {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 10, 0);
-
-        doReturn(requestHeadersUriSpec).when(restClient).get();
-        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+    void testIsRainingReturnsFalseWhenResponseIsNull() {
+        setupRestClientMocks();
         doReturn(null).when(responseSpec).body(WeatherResponseDto.class);
 
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
+        var result = weatherService.isRaining(TEST_DATE_TIME, LATITUDE, LONGITUDE, TIMEZONE);
 
         assertThat(result).isFalse();
     }
 
     @Test
-    void testIsRaining_ReturnsFalseWhenHourlyDataIsNull() {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 10, 0);
-
-        WeatherResponseDto mockResponse = new WeatherResponseDto();
-        mockResponse.setHourly(null);
-
-        doReturn(requestHeadersUriSpec).when(restClient).get();
-        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
-        doReturn(mockResponse).when(responseSpec).body(WeatherResponseDto.class);
-
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
-
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void testIsRaining_ReturnsFalseWhenRestClientExceptionThrown() {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 10, 0);
-
-        doReturn(requestHeadersUriSpec).when(restClient).get();
-        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+    void testIsRainingReturnsFalseWhenRestClientExceptionThrown() {
+        setupRestClientMocks();
         doThrow(new RestClientException("API unavailable")).when(responseSpec).body(WeatherResponseDto.class);
 
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
+        var result = weatherService.isRaining(TEST_DATE_TIME, LATITUDE, LONGITUDE, TIMEZONE);
 
         assertThat(result).isFalse();
     }
 
-    @Test
-    void testIsRaining_HandlesHourAtMidnight() {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 0, 0);
-
-        WeatherResponseDto mockResponse = createMockWeatherResponse(
-                Arrays.asList(80, 0, 1, 1, 1, 3, 3, 3, 2, 0, 45, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3)
-        );
-
+    private void setupRestClientMocks() {
         doReturn(requestHeadersUriSpec).when(restClient).get();
         doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
         doReturn(responseSpec).when(requestHeadersSpec).retrieve();
-        doReturn(mockResponse).when(responseSpec).body(WeatherResponseDto.class);
-
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
-
-        assertThat(result).isTrue();
     }
 
-    @Test
-    void testIsRaining_HandlesHourAt23() {
-        LocalDateTime dateTime = LocalDateTime.of(2025, 9, 4, 23, 0);
-
-        WeatherResponseDto mockResponse = createMockWeatherResponse(
-                Arrays.asList(3, 0, 1, 1, 1, 3, 3, 3, 2, 0, 45, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 85)
+    private WeatherResponseDto createMockWeatherResponseForHour(int hour, int weatherCode) {
+        var weatherCodes = new ArrayList<>(
+                Arrays.asList(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         );
+        weatherCodes.set(hour, weatherCode);
 
-        doReturn(requestHeadersUriSpec).when(restClient).get();
-        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
-        doReturn(mockResponse).when(responseSpec).body(WeatherResponseDto.class);
-
-        boolean result = weatherService.isRaining(dateTime, LATITUDE, LONGITUDE, TIMEZONE);
-
-        assertThat(result).isTrue();
-    }
-
-    private WeatherResponseDto createMockWeatherResponse(List<Integer> weatherCodes) {
-        HourlyDataDto hourlyData = new HourlyDataDto();
+        var hourlyData = new HourlyDataDto();
         hourlyData.setWeatherCode(weatherCodes);
 
-        WeatherResponseDto response = new WeatherResponseDto();
+        var response = new WeatherResponseDto();
         response.setHourly(hourlyData);
 
         return response;

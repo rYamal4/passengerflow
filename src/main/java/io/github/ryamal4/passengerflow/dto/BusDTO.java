@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BusDTO {
     private Long id;
-    private String model;
+    private Long busModelId;
+    private String busModelName;
+    private Integer busModelCapacity;
     private Long routeId;
     private String routeName;
 }

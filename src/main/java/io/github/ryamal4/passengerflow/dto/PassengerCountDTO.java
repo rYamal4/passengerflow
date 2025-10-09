@@ -31,8 +31,9 @@ public class PassengerCountDTO {
     @NotNull
     private LocalDateTime timestamp;
 
-    // Additional fields for display
     private String busModel;
+
     private String stopName;
+
     private String routeName;
 }

@@ -34,14 +34,9 @@ public class PassengerCountService implements IPassengerCountService {
     }
 
     @Override
-    public PassengerCount createCount(PassengerCount count) {
-        return passengerCountRepository.save(count);
-    }
-
-    @Override
     public PassengerCountDTO createCountFromDTO(PassengerCountDTO dto) {
-        PassengerCount count = convertToEntity(dto);
-        PassengerCount saved = passengerCountRepository.save(count);
+        var count = convertToEntity(dto);
+        var saved = passengerCountRepository.save(count);
         return convertToDTO(saved);
     }
 
@@ -68,28 +63,24 @@ public class PassengerCountService implements IPassengerCountService {
 
     @Override
     public PassengerCountDTO updateCount(Long id, PassengerCountDTO dto) {
-        PassengerCount existing = passengerCountRepository.findById(id)
+        var existing = passengerCountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("PassengerCount not found with id: " + id));
 
-        // Update fields
         existing.setEntered(dto.getEntered());
         existing.setExited(dto.getExited());
         existing.setTimestamp(dto.getTimestamp());
 
-        // Update relationships if changed
         if (!existing.getBus().getId().equals(dto.getBusId())) {
-            Bus bus = busRepository.findById(dto.getBusId())
-                    .orElseThrow(() -> new IllegalStateException("Bus not found with id: " + dto.getBusId()));
+            var bus = findBusOrThrow(dto.getBusId());
             existing.setBus(bus);
         }
 
         if (!existing.getStop().getId().equals(dto.getStopId())) {
-            Stop stop = stopsRepository.findById(dto.getStopId())
-                    .orElseThrow(() -> new IllegalStateException("Stop not found with id: " + dto.getStopId()));
+            var stop = findStopOrThrow(dto.getStopId());
             existing.setStop(stop);
         }
 
-        PassengerCount updated = passengerCountRepository.save(existing);
+        var updated = passengerCountRepository.save(existing);
         return convertToDTO(updated);
     }
 
@@ -103,7 +94,7 @@ public class PassengerCountService implements IPassengerCountService {
 
 
     private PassengerCountDTO convertToDTO(PassengerCount entity) {
-        PassengerCountDTO dto = new PassengerCountDTO();
+        var dto = new PassengerCountDTO();
 
         dto.setId(entity.getId());
         dto.setBusId(entity.getBus().getId());
@@ -111,7 +102,7 @@ public class PassengerCountService implements IPassengerCountService {
         dto.setEntered(entity.getEntered());
         dto.setExited(entity.getExited());
         dto.setTimestamp(entity.getTimestamp());
-        dto.setBusModel(entity.getBus().getModel());
+        dto.setBusModel(entity.getBus().getBusModel().getName());
         dto.setStopName(entity.getStop().getName());
         dto.setRouteName(entity.getStop().getRoute().getName());
 
@@ -124,15 +115,23 @@ public class PassengerCountService implements IPassengerCountService {
         entity.setExited(dto.getExited());
         entity.setTimestamp(dto.getTimestamp());
 
-        var bus = busRepository.findById(dto.getBusId())
-                .orElseThrow(() -> new IllegalStateException("Bus not found with id: " + dto.getBusId()));
+        var bus = findBusOrThrow(dto.getBusId());
         entity.setBus(bus);
 
-        Stop stop = stopsRepository.findById(dto.getStopId())
-                .orElseThrow(() -> new IllegalStateException("Stop not found with id: " + dto.getStopId()));
+        var stop = findStopOrThrow(dto.getStopId());
         entity.setStop(stop);
 
         return entity;
+    }
+
+    private Bus findBusOrThrow(Long busId) {
+        return busRepository.findById(busId)
+                .orElseThrow(() -> new IllegalArgumentException("Bus not found with id: " + busId));
+    }
+
+    private Stop findStopOrThrow(Long stopId) {
+        return stopsRepository.findById(stopId)
+                .orElseThrow(() -> new IllegalArgumentException("Stop not found with id: " + stopId));
     }
 
 }

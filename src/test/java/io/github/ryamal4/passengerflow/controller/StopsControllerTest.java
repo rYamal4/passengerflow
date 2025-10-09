@@ -2,8 +2,6 @@ package io.github.ryamal4.passengerflow.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ryamal4.passengerflow.dto.StopDTO;
-import io.github.ryamal4.passengerflow.model.Route;
-import io.github.ryamal4.passengerflow.model.Stop;
 import io.github.ryamal4.passengerflow.service.stop.IStopsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,26 +31,16 @@ class StopsControllerTest {
     @MockitoBean
     private IStopsService stopsService;
 
-    private Stop stop;
+    private StopDTO stopDTO;
 
     @BeforeEach
     void setUp() {
-        Route route = new Route();
-        route.setId(1L);
-        route.setName("Test Route");
-
-        this.stop = new Stop();
-        this.stop.setId(1L);
-        this.stop.setName("Test Stop");
-        this.stop.setLat(60.0);
-        this.stop.setLon(24.0);
-        this.stop.setRoute(route);
+        stopDTO = new StopDTO(1L, "Test Stop", 60.0, 24.0, 1L, "Test Route");
     }
 
     @Test
     void testGetNearbyStopsSuccess() throws Exception {
-        List<Stop> stops = List.of(stop);
-
+        var stops = List.of(stopDTO);
         when(stopsService.getNearbyStops(60.0, 24.0)).thenReturn(stops);
 
         mockMvc.perform(get(BASE_URL + "/nearby")
@@ -64,8 +52,8 @@ class StopsControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Test Stop"))
                 .andExpect(jsonPath("$[0].lat").value(60.0))
                 .andExpect(jsonPath("$[0].lon").value(24.0))
-                .andExpect(jsonPath("$[0].route.id").value(1))
-                .andExpect(jsonPath("$[0].route.name").value("Test Route"));
+                .andExpect(jsonPath("$[0].routeId").value(1))
+                .andExpect(jsonPath("$[0].routeName").value("Test Route"));
     }
 
     @Test
@@ -113,9 +101,7 @@ class StopsControllerTest {
 
     @Test
     void testGetAllStopsSuccess() throws Exception {
-        StopDTO stopDTO = new StopDTO(1L, "Test Stop", 60.0, 24.0, 1L, "Test Route");
-        List<StopDTO> stops = List.of(stopDTO);
-
+        var stops = List.of(stopDTO);
         when(stopsService.getAllStops()).thenReturn(stops);
 
         mockMvc.perform(get(BASE_URL))

@@ -1,10 +1,7 @@
 package io.github.ryamal4.passengerflow.repository;
 
 import io.github.ryamal4.passengerflow.AbstractTestContainerTest;
-import io.github.ryamal4.passengerflow.model.Bus;
-import io.github.ryamal4.passengerflow.model.PassengerCount;
-import io.github.ryamal4.passengerflow.model.Route;
-import io.github.ryamal4.passengerflow.model.Stop;
+import io.github.ryamal4.passengerflow.model.*;
 import io.github.ryamal4.passengerflow.specification.PassengerCountSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +11,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-class IPassengerCountRepositoryTest extends AbstractTestContainerTest {
+class PassengerCountRepositoryTest extends AbstractTestContainerTest {
 
     private static final LocalDateTime BASE_TIME = LocalDateTime.of(2025, 9, 21, 10, 0, 0);
 
@@ -36,36 +34,28 @@ class IPassengerCountRepositoryTest extends AbstractTestContainerTest {
 
     @BeforeEach
     void setUp() {
-        Route route1 = new Route();
-        route1.setName("Route 1");
+        var route1 = new Route(null, "Route 1", new ArrayList<>(), new ArrayList<>());
         entityManager.persistAndFlush(route1);
 
-        Route route2 = new Route();
-        route2.setName("Route 2");
+        var route2 = new Route(null, "Route 2", new ArrayList<>(), new ArrayList<>());
         entityManager.persistAndFlush(route2);
 
-        bus1 = new Bus();
-        bus1.setModel("Volvo 7900");
-        bus1.setRoute(route1);
+        var busModel1 = new BusModel(null, "Volvo 7900", 50, new ArrayList<>());
+        entityManager.persistAndFlush(busModel1);
+
+        var busModel2 = new BusModel(null, "Mercedes Citaro", 60, new ArrayList<>());
+        entityManager.persistAndFlush(busModel2);
+
+        bus1 = new Bus(null, busModel1, route1, new ArrayList<>());
         entityManager.persistAndFlush(bus1);
 
-        bus2 = new Bus();
-        bus2.setModel("Mercedes Citaro");
-        bus2.setRoute(route2);
+        bus2 = new Bus(null, busModel2, route2, new ArrayList<>());
         entityManager.persistAndFlush(bus2);
 
-        stop1 = new Stop();
-        stop1.setName("Stop 1");
-        stop1.setLat(60.1699);
-        stop1.setLon(24.9342);
-        stop1.setRoute(route1);
+        stop1 = new Stop(null, "Stop 1", 60.1699, 24.9342, route1, new ArrayList<>());
         entityManager.persistAndFlush(stop1);
 
-        stop2 = new Stop();
-        stop2.setName("Stop 2");
-        stop2.setLat(60.1700);
-        stop2.setLon(24.9350);
-        stop2.setRoute(route2);
+        stop2 = new Stop(null, "Stop 2", 60.1700, 24.9350, route2, new ArrayList<>());
         entityManager.persistAndFlush(stop2);
 
         createPassengerCount(bus1, stop1, BASE_TIME, 10, 5);
@@ -177,18 +167,11 @@ class IPassengerCountRepositoryTest extends AbstractTestContainerTest {
                 .allMatch(pc ->
                         (pc.getTimestamp().isAfter(startTime) || pc.getTimestamp().isEqual(startTime)) &&
                                 (pc.getTimestamp().isBefore(endTime) || pc.getTimestamp().isEqual(endTime))
-        );
+                );
     }
 
     private void createPassengerCount(Bus bus, Stop stop, LocalDateTime timestamp, int entered, int exited) {
-        PassengerCount count = new PassengerCount();
-
-        count.setBus(bus);
-        count.setStop(stop);
-        count.setTimestamp(timestamp);
-        count.setEntered(entered);
-        count.setExited(exited);
-
+        var count = new PassengerCount(null, bus, stop, entered, exited, timestamp);
         entityManager.persistAndFlush(count);
     }
 }

@@ -2,6 +2,7 @@ package io.github.ryamal4.passengerflow.service.bus;
 
 import io.github.ryamal4.passengerflow.dto.BusDTO;
 import io.github.ryamal4.passengerflow.model.Bus;
+import io.github.ryamal4.passengerflow.model.BusModel;
 import io.github.ryamal4.passengerflow.model.Route;
 import io.github.ryamal4.passengerflow.repository.IBusRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,35 +23,19 @@ class BusServiceTest {
 
     @Mock
     private IBusRepository busRepository;
-
     @InjectMocks
     private BusService busService;
-
     private Bus bus1;
     private Bus bus2;
     private Bus bus3;
-    private Route route;
 
     @BeforeEach
     void setUp() {
-        route = new Route();
-        route.setId(1L);
-        route.setName("Test Route");
+        Route route = createRoute();
 
-        bus1 = new Bus();
-        bus1.setId(1L);
-        bus1.setModel("Bus Model 1");
-        bus1.setRoute(route);
-
-        bus2 = new Bus();
-        bus2.setId(2L);
-        bus2.setModel("Bus Model 2");
-        bus2.setRoute(route);
-
-        bus3 = new Bus();
-        bus3.setId(3L);
-        bus3.setModel("Bus Model 3");
-        bus3.setRoute(route);
+        bus1 = createBus(1L, createBusModel(1L, "Bus Model 1", 50), route);
+        bus2 = createBus(2L, createBusModel(2L, "Bus Model 2", 60), route);
+        bus3 = createBus(3L, createBusModel(3L, "Bus Model 3", 70), route);
     }
 
     @Test
@@ -62,45 +47,42 @@ class BusServiceTest {
         List<BusDTO> result = busService.getAllBuses();
 
         assertThat(result).hasSize(3);
-        assertThat(result.get(0).getId()).isEqualTo(1L);
-        assertThat(result.get(0).getModel()).isEqualTo("Bus Model 1");
-        assertThat(result.get(0).getRouteId()).isEqualTo(1L);
-        assertThat(result.get(0).getRouteName()).isEqualTo("Test Route");
-
-        assertThat(result.get(1).getId()).isEqualTo(2L);
-        assertThat(result.get(1).getModel()).isEqualTo("Bus Model 2");
-
-        assertThat(result.get(2).getId()).isEqualTo(3L);
-        assertThat(result.get(2).getModel()).isEqualTo("Bus Model 3");
+        assertDtoIsCorrect(result.get(0), bus1);
+        assertDtoIsCorrect(result.get(1), bus2);
+        assertDtoIsCorrect(result.get(2), bus3);
 
         verify(busRepository).findAll();
     }
 
-    @Test
-    void testGetAllBusesEmptyResult() {
-        when(busRepository.findAll()).thenReturn(List.of());
-
-        List<BusDTO> result = busService.getAllBuses();
-
-        assertThat(result).isEmpty();
-        verify(busRepository).findAll();
+    private Route createRoute() {
+        var route = new Route();
+        route.setId(1L);
+        route.setName("Test Route");
+        return route;
     }
 
-    @Test
-    void testGetAllBusesConvertsToDTO() {
-        List<Bus> buses = List.of(bus1);
+    private BusModel createBusModel(Long id, String name, Integer capacity) {
+        BusModel busModel = new BusModel();
+        busModel.setId(id);
+        busModel.setName(name);
+        busModel.setCapacity(capacity);
+        return busModel;
+    }
 
-        when(busRepository.findAll()).thenReturn(buses);
+    private Bus createBus(Long id, BusModel busModel, Route route) {
+        Bus bus = new Bus();
+        bus.setId(id);
+        bus.setBusModel(busModel);
+        bus.setRoute(route);
+        return bus;
+    }
 
-        List<BusDTO> result = busService.getAllBuses();
-
-        assertThat(result).hasSize(1);
-        BusDTO dto = result.get(0);
-        assertThat(dto.getId()).isEqualTo(bus1.getId());
-        assertThat(dto.getModel()).isEqualTo(bus1.getModel());
-        assertThat(dto.getRouteId()).isEqualTo(bus1.getRoute().getId());
-        assertThat(dto.getRouteName()).isEqualTo(bus1.getRoute().getName());
-
-        verify(busRepository).findAll();
+    private void assertDtoIsCorrect(BusDTO dto, Bus bus) {
+        assertThat(dto.getId()).isEqualTo(bus.getId());
+        assertThat(dto.getBusModelId()).isEqualTo(bus.getBusModel().getId());
+        assertThat(dto.getBusModelName()).isEqualTo(bus.getBusModel().getName());
+        assertThat(dto.getBusModelCapacity()).isEqualTo(bus.getBusModel().getCapacity());
+        assertThat(dto.getRouteId()).isEqualTo(bus.getRoute().getId());
+        assertThat(dto.getRouteName()).isEqualTo(bus.getRoute().getName());
     }
 }

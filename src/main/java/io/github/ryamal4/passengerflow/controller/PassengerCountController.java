@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/passengers")
-@CrossOrigin(origins = "*")
 public class PassengerCountController {
     private final IPassengerCountService passengerCountService;
 

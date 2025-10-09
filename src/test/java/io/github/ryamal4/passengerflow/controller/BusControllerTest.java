@@ -32,16 +32,17 @@ class BusControllerTest {
 
     @Test
     void testGetAllBusesSuccess() throws Exception {
-        BusDTO busDTO = new BusDTO(1L, "Test Bus Model", 1L, "Test Route");
-        List<BusDTO> buses = List.of(busDTO);
-
+        var busDTO = new BusDTO(1L, 1L, "Test Bus Model", 50, 1L, "Test Route");
+        var buses = List.of(busDTO);
         when(busService.getAllBuses()).thenReturn(buses);
 
         mockMvc.perform(get(BASE_URL))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].model").value("Test Bus Model"))
+                .andExpect(jsonPath("$[0].busModelId").value(1))
+                .andExpect(jsonPath("$[0].busModelName").value("Test Bus Model"))
+                .andExpect(jsonPath("$[0].busModelCapacity").value(50))
                 .andExpect(jsonPath("$[0].routeId").value(1))
                 .andExpect(jsonPath("$[0].routeName").value("Test Route"));
     }

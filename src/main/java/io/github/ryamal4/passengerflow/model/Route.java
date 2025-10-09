@@ -1,10 +1,7 @@
 package io.github.ryamal4.passengerflow.model;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "routes")
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 public class Route {
     @Id

@@ -27,7 +27,9 @@ public class BusService implements IBusService {
     private BusDTO convertToDTO(Bus entity) {
         var dto = new BusDTO();
         dto.setId(entity.getId());
-        dto.setModel(entity.getModel());
+        dto.setBusModelId(entity.getBusModel().getId());
+        dto.setBusModelName(entity.getBusModel().getName());
+        dto.setBusModelCapacity(entity.getBusModel().getCapacity());
         dto.setRouteId(entity.getRoute().getId());
         dto.setRouteName(entity.getRoute().getName());
         return dto;
