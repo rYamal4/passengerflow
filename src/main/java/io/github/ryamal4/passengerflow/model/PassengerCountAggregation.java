@@ -36,6 +36,6 @@ public class PassengerCountAggregation {
     @Max(55)
     private Integer minute;
 
-    @Column(name = "average_load", nullable = false)
-    private Integer averageLoad;
+    @Column(name = "average_occupancy_percentage", nullable = false)
+    private Double averageOccupancyPercentage;
 }
