@@ -1,6 +1,5 @@
 package io.github.ryamal4.passengerflow.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ryamal4.passengerflow.dto.StopDTO;
 import io.github.ryamal4.passengerflow.service.stop.IStopsService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +23,6 @@ class StopsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private IStopsService stopsService;
@@ -71,7 +67,7 @@ class StopsControllerTest {
 
     @Test
     void testGetNearbyStopsMissingLatParam() throws Exception {
-        mockMvc.perform(get(BASE_URL+ "/nearby")
+        mockMvc.perform(get(BASE_URL + "/nearby")
                         .param("lon", "24.0"))
                 .andExpect(status().isBadRequest());
     }

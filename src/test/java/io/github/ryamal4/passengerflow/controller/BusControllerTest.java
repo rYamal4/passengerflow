@@ -1,6 +1,5 @@
 package io.github.ryamal4.passengerflow.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ryamal4.passengerflow.dto.BusDTO;
 import io.github.ryamal4.passengerflow.service.bus.IBusService;
 import org.junit.jupiter.api.Test;
@@ -23,9 +22,6 @@ class BusControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private IBusService busService;
