@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface IPassengerCountAggregationRepository extends JpaRepository<PassengerCountAggregation, Long> {
 
@@ -57,4 +60,16 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
             FROM aggregated_data
             """, nativeQuery = true)
     int insertAggregatedData(@Param("dayOfWeek") Integer dayOfWeek);
+
+    @Query("SELECT p FROM PassengerCountAggregation p WHERE p.stop.route.name = :routeName AND p.dayOfWeek = :dayOfWeek ORDER BY p.stop.name, p.hour, p.minute")
+    List<PassengerCountAggregation> findByRouteAndDayOfWeek(@Param("routeName") String routeName, @Param("dayOfWeek") Integer dayOfWeek);
+
+    @Query("SELECT p FROM PassengerCountAggregation p WHERE p.stop.route.name = :routeName AND p.stop.name = :stopName AND p.dayOfWeek = :dayOfWeek AND p.hour = :hour AND p.minute = :minute")
+    Optional<PassengerCountAggregation> findByRouteAndStopAndTime(
+            @Param("routeName") String routeName,
+            @Param("stopName") String stopName,
+            @Param("dayOfWeek") Integer dayOfWeek,
+            @Param("hour") Integer hour,
+            @Param("minute") Integer minute
+    );
 }
