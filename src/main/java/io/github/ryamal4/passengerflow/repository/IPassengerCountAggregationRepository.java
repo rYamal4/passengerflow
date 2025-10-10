@@ -61,12 +61,21 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
             """, nativeQuery = true)
     int insertAggregatedData(@Param("dayOfWeek") Integer dayOfWeek);
 
-    @Query("""
-            SELECT p FROM PassengerCountAggregation p
-            WHERE p.stop.route.name = :routeName
-              AND p.dayOfWeek = :dayOfWeek
-            ORDER BY p.stop.name, p.hour, p.minute
-            """)
+    @Query(value = """
+            SELECT
+                stop_id,
+                day_of_week,
+                hour,
+                0 as minute,
+                AVG(average_occupancy_percentage) as average_occupancy_percentage
+            FROM passenger_counts_aggregation pca
+            JOIN stops s ON pca.stop_id = s.id
+            JOIN routes r ON s.route_id = r.id
+            WHERE r.name = :routeName
+              AND pca.day_of_week = :dayOfWeek
+            GROUP BY stop_id, day_of_week, hour
+            ORDER BY s.name, hour
+            """, nativeQuery = true)
     List<PassengerCountAggregation> findByRouteAndDayOfWeek(@Param("routeName") String routeName, @Param("dayOfWeek") Integer dayOfWeek);
 
     @Query("""
