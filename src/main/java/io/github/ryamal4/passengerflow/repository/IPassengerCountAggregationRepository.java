@@ -61,10 +61,22 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
             """, nativeQuery = true)
     int insertAggregatedData(@Param("dayOfWeek") Integer dayOfWeek);
 
-    @Query("SELECT p FROM PassengerCountAggregation p WHERE p.stop.route.name = :routeName AND p.dayOfWeek = :dayOfWeek ORDER BY p.stop.name, p.hour, p.minute")
+    @Query("""
+            SELECT p FROM PassengerCountAggregation p
+            WHERE p.stop.route.name = :routeName
+              AND p.dayOfWeek = :dayOfWeek
+            ORDER BY p.stop.name, p.hour, p.minute
+            """)
     List<PassengerCountAggregation> findByRouteAndDayOfWeek(@Param("routeName") String routeName, @Param("dayOfWeek") Integer dayOfWeek);
 
-    @Query("SELECT p FROM PassengerCountAggregation p WHERE p.stop.route.name = :routeName AND p.stop.name = :stopName AND p.dayOfWeek = :dayOfWeek AND p.hour = :hour AND p.minute = :minute")
+    @Query("""
+            SELECT p FROM PassengerCountAggregation p
+            WHERE p.stop.route.name = :routeName
+              AND p.stop.name = :stopName
+              AND p.dayOfWeek = :dayOfWeek
+              AND p.hour = :hour
+              AND p.minute = :minute
+            """)
     Optional<PassengerCountAggregation> findByRouteAndStopAndTime(
             @Param("routeName") String routeName,
             @Param("stopName") String stopName,
