@@ -40,17 +40,18 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
     @Test
     void testGetNearbyStops_ReturnsSortedByDistance() {
         Stop nearStop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
-        Stop farStop = createStop(STOP_2, 61.0000, 25.0000, testRoute);
-        Stop middleStop = createStop(STOP_3, 60.5000, 24.9500, testRoute);
+        Stop middleStop = createStop(STOP_2, 60.1750, 24.9400, testRoute);
+        Stop farStop = createStop(STOP_3, 60.1800, 24.9450, testRoute);
 
         entityManager.persistAndFlush(nearStop);
-        entityManager.persistAndFlush(farStop);
         entityManager.persistAndFlush(middleStop);
+        entityManager.persistAndFlush(farStop);
 
         List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 3);
 
         assertThat(result).hasSize(3);
         assertThat(result.get(0)).isEqualTo(nearStop);
+        assertThat(result.get(1)).isEqualTo(middleStop);
         assertThat(result.get(2)).isEqualTo(farStop);
     }
 
@@ -90,16 +91,17 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
 
     @Test
     void testGetNearbyStops_BoundaryCoordinates() {
-        Stop northPoleStop = createStop(STOP_1, 89.9999, 0.0, testRoute);
-        Stop equatorStop = createStop(STOP_2, 0.0, 0.0, testRoute);
+        Stop nearNorthPoleStop = createStop(STOP_1, 89.9999, 0.0, testRoute);
+        Stop slightlyFurtherStop = createStop(STOP_2, 89.9950, 0.0, testRoute);
 
-        entityManager.persistAndFlush(northPoleStop);
-        entityManager.persistAndFlush(equatorStop);
+        entityManager.persistAndFlush(nearNorthPoleStop);
+        entityManager.persistAndFlush(slightlyFurtherStop);
 
         List<Stop> result = stopsRepository.findNearbyStops(90.0, 0.0, 2);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0)).isEqualTo(northPoleStop);
+        assertThat(result.get(0)).isEqualTo(nearNorthPoleStop);
+        assertThat(result.get(1)).isEqualTo(slightlyFurtherStop);
     }
 
     @Test
@@ -115,6 +117,20 @@ class StopsRepositoryTest extends AbstractTestContainerTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0)).isEqualTo(nearestStop);
         assertThat(result.get(1)).isEqualTo(furtherStop);
+    }
+
+    @Test
+    void testGetNearbyStops_ExcludesStopsOutsideBoundingBox() {
+        Stop nearStop = createStop(STOP_1, 60.1695, 24.9354, testRoute);
+        Stop farStop = createStop(STOP_2, 61.0000, 25.0000, testRoute);
+
+        entityManager.persistAndFlush(nearStop);
+        entityManager.persistAndFlush(farStop);
+
+        List<Stop> result = stopsRepository.findNearbyStops(LAT_60_1699, LON_24_9342, 10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(nearStop);
     }
 
     private Stop createStop(String name, double lat, double lon, Route route) {

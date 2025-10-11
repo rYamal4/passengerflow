@@ -10,7 +10,6 @@ import java.util.List;
 @Repository
 public interface IStopsRepository extends JpaRepository<Stop, Long> {
 
-    // TODO optimize this query
     @NativeQuery("""
             SELECT s.*,
                    (6371 * acos(
@@ -19,6 +18,8 @@ public interface IStopsRepository extends JpaRepository<Stop, Long> {
                        sin(radians(:lat)) * sin(radians(s.lat))
                    )) AS distance
             FROM stops s
+            WHERE s.lat BETWEEN :lat - 0.09 AND :lat + 0.09
+              AND s.lon BETWEEN :lon - 0.09 AND :lon + 0.09
             ORDER BY distance
             LIMIT :count
             """)
