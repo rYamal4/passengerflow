@@ -4,6 +4,12 @@ spring:
   application:
     name: passengerflow
     version: 0.0.1
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=6h
+    cache-names:
+      - weather
 open-meteo:
   api:
     url: https://api.open-meteo.com/v1/forecast
