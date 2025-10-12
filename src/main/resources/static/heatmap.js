@@ -6,8 +6,8 @@ let currentHour = 12;
 
 const SVG_WIDTH = 1000;
 const SVG_HEIGHT = 600;
-const MARGIN = { top: 40, right: 100, bottom: 40, left: 100 };
-const NODE_RADIUS = 20;
+const MARGIN = { top: 60, right: 80, bottom: 60, left: 80 };
+const NODE_RADIUS = 22;
 
 class ApiService {
     static async request(url) {
@@ -110,6 +110,42 @@ function getOccupancyForStop(stopName, hour) {
     return prediction ? prediction.occupancyPercentage : null;
 }
 
+function projectCoordinates(stops) {
+    const lats = stops.map(s => s.lat);
+    const lons = stops.map(s => s.lon);
+
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLon = Math.min(...lons);
+    const maxLon = Math.max(...lons);
+
+    const latRange = maxLat - minLat || 1;
+    const lonRange = maxLon - minLon || 1;
+
+    const availableWidth = SVG_WIDTH - MARGIN.left - MARGIN.right;
+    const availableHeight = SVG_HEIGHT - MARGIN.top - MARGIN.bottom;
+
+    const scale = Math.min(availableWidth / lonRange, availableHeight / latRange) * 0.9;
+
+    return stops.map(stop => {
+        const x = MARGIN.left + (stop.lon - minLon) * scale + (availableWidth - lonRange * scale) / 2;
+        const y = MARGIN.top + (maxLat - stop.lat) * scale + (availableHeight - latRange * scale) / 2;
+        return { ...stop, x, y };
+    });
+}
+
+function createCurvedPath(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const curve = distance * 0.15;
+    const cx = (x1 + x2) / 2 - dy * curve / distance;
+    const cy = (y1 + y2) / 2 + dx * curve / distance;
+
+    return `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+}
+
 async function loadStops() {
     try {
         showLoading();
@@ -180,27 +216,86 @@ function renderHeatmap() {
         return;
     }
 
-    const availableHeight = SVG_HEIGHT - MARGIN.top - MARGIN.bottom;
-    const spacing = routeStops.length > 1 ? availableHeight / (routeStops.length - 1) : 0;
-    const centerX = SVG_WIDTH / 2;
-
     const svgNS = 'http://www.w3.org/2000/svg';
+    const projectedStops = projectCoordinates(routeStops);
 
-    for (let i = 0; i < routeStops.length - 1; i++) {
-        const y1 = MARGIN.top + i * spacing;
-        const y2 = MARGIN.top + (i + 1) * spacing;
+    const defs = document.createElementNS(svgNS, 'defs');
 
-        const line = document.createElementNS(svgNS, 'line');
-        line.setAttribute('class', 'connection-line');
-        line.setAttribute('x1', centerX);
-        line.setAttribute('y1', y1);
-        line.setAttribute('x2', centerX);
-        line.setAttribute('y2', y2);
-        svg.appendChild(line);
+    const gradient = document.createElementNS(svgNS, 'linearGradient');
+    gradient.setAttribute('id', 'lineGradient');
+    gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
+    const stop1 = document.createElementNS(svgNS, 'stop');
+    stop1.setAttribute('offset', '0%');
+    stop1.setAttribute('style', 'stop-color:#667eea;stop-opacity:0.6');
+    const stop2 = document.createElementNS(svgNS, 'stop');
+    stop2.setAttribute('offset', '100%');
+    stop2.setAttribute('style', 'stop-color:#764ba2;stop-opacity:0.6');
+    gradient.appendChild(stop1);
+    gradient.appendChild(stop2);
+    defs.appendChild(gradient);
+
+    const filter = document.createElementNS(svgNS, 'filter');
+    filter.setAttribute('id', 'nodeShadow');
+    filter.setAttribute('x', '-50%');
+    filter.setAttribute('y', '-50%');
+    filter.setAttribute('width', '200%');
+    filter.setAttribute('height', '200%');
+
+    const feGaussianBlur = document.createElementNS(svgNS, 'feGaussianBlur');
+    feGaussianBlur.setAttribute('in', 'SourceAlpha');
+    feGaussianBlur.setAttribute('stdDeviation', '3');
+
+    const feOffset = document.createElementNS(svgNS, 'feOffset');
+    feOffset.setAttribute('dx', '0');
+    feOffset.setAttribute('dy', '2');
+    feOffset.setAttribute('result', 'offsetblur');
+
+    const feMerge = document.createElementNS(svgNS, 'feMerge');
+    const feMergeNode1 = document.createElementNS(svgNS, 'feMergeNode');
+    const feMergeNode2 = document.createElementNS(svgNS, 'feMergeNode');
+    feMergeNode2.setAttribute('in', 'SourceGraphic');
+    feMerge.appendChild(feMergeNode1);
+    feMerge.appendChild(feMergeNode2);
+
+    filter.appendChild(feGaussianBlur);
+    filter.appendChild(feOffset);
+    filter.appendChild(feMerge);
+    defs.appendChild(filter);
+
+    svg.appendChild(defs);
+
+    const pathsGroup = document.createElementNS(svgNS, 'g');
+    pathsGroup.setAttribute('class', 'paths-group');
+
+    for (let i = 0; i < projectedStops.length; i++) {
+        const stop1 = projectedStops[i];
+        const stop2 = projectedStops[(i + 1) % projectedStops.length];
+
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('class', 'connection-path');
+        path.setAttribute('d', createCurvedPath(stop1.x, stop1.y, stop2.x, stop2.y));
+        path.setAttribute('stroke', 'url(#lineGradient)');
+        path.setAttribute('fill', 'none');
+        pathsGroup.appendChild(path);
+
+        const dx = stop2.x - stop1.x;
+        const dy = stop2.y - stop1.y;
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const midX = (stop1.x + stop2.x) / 2;
+        const midY = (stop1.y + stop2.y) / 2;
+
+        const arrow = document.createElementNS(svgNS, 'polygon');
+        arrow.setAttribute('class', 'direction-arrow');
+        arrow.setAttribute('points', '-6,-4 6,0 -6,4');
+        arrow.setAttribute('transform', `translate(${midX},${midY}) rotate(${angle})`);
+        arrow.setAttribute('fill', '#667eea');
+        arrow.setAttribute('opacity', '0.7');
+        pathsGroup.appendChild(arrow);
     }
 
-    routeStops.forEach((stop, index) => {
-        const y = MARGIN.top + index * spacing;
+    svg.appendChild(pathsGroup);
+
+    projectedStops.forEach((stop, index) => {
         const occupancy = getOccupancyForStop(stop.name, currentHour);
         const color = getOccupancyColor(occupancy);
 
@@ -209,17 +304,45 @@ function renderHeatmap() {
         g.setAttribute('data-stop-name', stop.name);
         g.setAttribute('data-occupancy', occupancy !== null ? occupancy.toFixed(1) : 'N/A');
 
+        const outerCircle = document.createElementNS(svgNS, 'circle');
+        outerCircle.setAttribute('cx', stop.x);
+        outerCircle.setAttribute('cy', stop.y);
+        outerCircle.setAttribute('r', NODE_RADIUS + 4);
+        outerCircle.setAttribute('fill', 'white');
+        outerCircle.setAttribute('filter', 'url(#nodeShadow)');
+        g.appendChild(outerCircle);
+
         const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', centerX);
-        circle.setAttribute('cy', y);
+        circle.setAttribute('cx', stop.x);
+        circle.setAttribute('cy', stop.y);
         circle.setAttribute('r', NODE_RADIUS);
         circle.setAttribute('fill', color);
+        circle.setAttribute('class', 'stop-circle');
         g.appendChild(circle);
+
+        const innerCircle = document.createElementNS(svgNS, 'circle');
+        innerCircle.setAttribute('cx', stop.x);
+        innerCircle.setAttribute('cy', stop.y);
+        innerCircle.setAttribute('r', 6);
+        innerCircle.setAttribute('fill', 'white');
+        innerCircle.setAttribute('opacity', '0.8');
+        g.appendChild(innerCircle);
+
+        const textBg = document.createElementNS(svgNS, 'rect');
+        textBg.setAttribute('x', stop.x + NODE_RADIUS + 8);
+        textBg.setAttribute('y', stop.y - 10);
+        textBg.setAttribute('width', stop.name.length * 7 + 10);
+        textBg.setAttribute('height', 20);
+        textBg.setAttribute('fill', 'white');
+        textBg.setAttribute('opacity', '0.9');
+        textBg.setAttribute('rx', '4');
+        textBg.setAttribute('filter', 'url(#nodeShadow)');
+        g.appendChild(textBg);
 
         const text = document.createElementNS(svgNS, 'text');
         text.setAttribute('class', 'stop-label');
-        text.setAttribute('x', centerX + NODE_RADIUS + 15);
-        text.setAttribute('y', y);
+        text.setAttribute('x', stop.x + NODE_RADIUS + 13);
+        text.setAttribute('y', stop.y);
         text.setAttribute('dominant-baseline', 'middle');
         text.textContent = stop.name;
         g.appendChild(text);
@@ -233,11 +356,19 @@ function renderHeatmap() {
 
     const title = document.createElementNS(svgNS, 'text');
     title.setAttribute('x', SVG_WIDTH / 2);
-    title.setAttribute('y', 20);
+    title.setAttribute('y', 30);
     title.setAttribute('text-anchor', 'middle');
-    title.setAttribute('style', 'font-size: 18px; font-weight: 600; fill: #333;');
+    title.setAttribute('class', 'map-title');
     title.textContent = `Маршрут ${currentRoute} в ${currentHour}:00`;
     svg.appendChild(title);
+
+    const subtitle = document.createElementNS(svgNS, 'text');
+    subtitle.setAttribute('x', SVG_WIDTH / 2);
+    subtitle.setAttribute('y', 50);
+    subtitle.setAttribute('text-anchor', 'middle');
+    subtitle.setAttribute('class', 'map-subtitle');
+    subtitle.textContent = `Кольцевой маршрут • ${projectedStops.length} остановок`;
+    svg.appendChild(subtitle);
 }
 
 function showTooltip(event, stop, occupancy) {
@@ -258,11 +389,15 @@ function showTooltip(event, stop, occupancy) {
     }
 
     tooltip.style.display = 'block';
+    tooltip.style.opacity = '0';
+    setTimeout(() => tooltip.style.opacity = '1', 10);
     updateTooltipPosition(event);
 }
 
 function hideTooltip() {
-    document.getElementById('tooltip').style.display = 'none';
+    const tooltip = document.getElementById('tooltip');
+    tooltip.style.opacity = '0';
+    setTimeout(() => tooltip.style.display = 'none', 200);
 }
 
 function updateTooltipPosition(event) {
