@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WeatherCacheKeyGeneratorTest {
     private static final TimeZone TIMEZONE = TimeZone.getTimeZone("Europe/Moscow");
@@ -83,5 +84,16 @@ class WeatherCacheKeyGeneratorTest {
         var key2 = keyGenerator.generate(null, null, dateTime, lat2, lon2, TIMEZONE);
 
         assertThat(key1).isNotEqualTo(key2);
+    }
+
+    @Test
+    void testGenerateKeyWhenTooManyParams() {
+        var dateTime = LocalDateTime.of(2025, 9, 4, 10, 0);
+        var lat1 = 52.52;
+        var lon1 = 13.41;
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            keyGenerator.generate(null, null, dateTime, lat1, lon1, TIMEZONE, null);
+        });
     }
 }
