@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тепловая карта загруженности остановок</title>
+    <link rel="stylesheet" href="heatmap.css">
+</head>
+<body>
+<header class="page-header">
+    <div class="container">
+        <h1>Тепловая карта загруженности остановок</h1>
+        <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+            ← Назад к записям
+        </button>
+    </div>
+</header>
+
+<section class="controls-section">
+    <div class="container">
+        <div class="controls-grid">
+            <div class="control-group">
+                <label for="routeSelect">Маршрут:</label>
+                <select id="routeSelect" class="form-select">
+                    <option value="">Выберите маршрут...</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="hourSlider">Час: <span id="hourValue">12</span>:00</label>
+                <input type="range" id="hourSlider" class="hour-slider" min="6" max="23" value="12">
+                <div class="hour-marks">
+                    <span>6:00</span>
+                    <span>12:00</span>
+                    <span>18:00</span>
+                    <span>23:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="loading-indicator" id="loadingIndicator" style="display: none;">
+    <div class="spinner"></div>
+    <span>Загрузка данных...</span>
+</div>
+
+<section class="map-section">
+    <div class="container">
+        <div class="map-container">
+            <div class="legend">
+                <h3>Легенда</h3>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #9E9E9E;"></span>
+                    <span>Нет данных</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #4CAF50;"></span>
+                    <span>0-50% (низкая)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #FFEB3B;"></span>
+                    <span>50-80% (средняя)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #FF9800;"></span>
+                    <span>80-100% (высокая)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #F44336;"></span>
+                    <span>100-120% (критическая)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #B71C1C;"></span>
+                    <span>&gt;120% (экстремальная)</span>
+                </div>
+            </div>
+
+            <div class="visualization-area">
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">🗺️</div>
+                    <h3>Выберите маршрут</h3>
+                    <p>Выберите маршрут из выпадающего списка, чтобы увидеть тепловую карту загруженности остановок.</p>
+                </div>
+                <svg id="heatmapSvg" width="100%" height="600" style="display: none;">
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="tooltip" id="tooltip" style="display: none;">
+    <div class="tooltip-content">
+        <strong id="tooltipStopName"></strong>
+        <div id="tooltipTime"></div>
+        <div id="tooltipOccupancy"></div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="heatmap.js"></script>
+</body>
+</html>

@@ -63,6 +63,7 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
 
     @Query(value = """
             SELECT
+                MAX(pca.id) as id,
                 stop_id,
                 day_of_week,
                 hour,
@@ -74,7 +75,7 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
             WHERE r.name = :routeName
               AND pca.day_of_week = :dayOfWeek
             GROUP BY stop_id, day_of_week, hour
-            ORDER BY s.name, hour
+            ORDER BY MIN(s.name), hour
             """, nativeQuery = true)
     List<PassengerCountAggregation> findByRouteAndDayOfWeek(@Param("routeName") String routeName, @Param("dayOfWeek") Integer dayOfWeek);
 
