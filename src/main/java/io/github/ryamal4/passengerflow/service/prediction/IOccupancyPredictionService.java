@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface IOccupancyPredictionService {
     Optional<OccupancyPredictionDTO> getPrediction(String routeName, String stopName, LocalTime time);
-    List<OccupancyPredictionDTO> getDailyPredictions(String routeName);
+
+    List<OccupancyPredictionDTO> getTodayPredictions(String routeName);
 }

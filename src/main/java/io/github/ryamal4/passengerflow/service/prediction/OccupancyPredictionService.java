@@ -47,7 +47,7 @@ public class OccupancyPredictionService implements IOccupancyPredictionService {
     }
 
     @Override
-    public List<OccupancyPredictionDTO> getDailyPredictions(String routeName) {
+    public List<OccupancyPredictionDTO> getTodayPredictions(String routeName) {
         var now = LocalDateTime.now(MOSCOW_ZONE_ID);
         var dayOfWeek = now.getDayOfWeek().getValue();
 

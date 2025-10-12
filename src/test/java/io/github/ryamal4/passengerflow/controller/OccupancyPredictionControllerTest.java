@@ -67,7 +67,7 @@ class OccupancyPredictionControllerTest {
                 new OccupancyPredictionDTO("Downtown", LocalTime.of(9, 0), 60.0)
         );
 
-        when(predictionService.getDailyPredictions("7A")).thenReturn(predictions);
+        when(predictionService.getTodayPredictions("7A")).thenReturn(predictions);
 
         mockMvc.perform(get("/api/predictions")
                         .param("route", "7A"))
@@ -77,6 +77,6 @@ class OccupancyPredictionControllerTest {
                 .andExpect(jsonPath("$[1].stopName").value("Downtown"))
                 .andExpect(jsonPath("$[1].occupancyPercentage").value(60.0));
 
-        verify(predictionService).getDailyPredictions("7A");
+        verify(predictionService).getTodayPredictions("7A");
     }
 }

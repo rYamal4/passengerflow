@@ -32,7 +32,7 @@ public class OccupancyPredictionController {
                     .map(prediction -> ResponseEntity.ok(List.of(prediction)))
                     .orElse(ResponseEntity.notFound().build());
         } else {
-            var predictions = predictionService.getDailyPredictions(route);
+            var predictions = predictionService.getTodayPredictions(route);
             return ResponseEntity.ok(predictions);
         }
     }

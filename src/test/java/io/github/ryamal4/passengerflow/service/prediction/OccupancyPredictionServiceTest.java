@@ -116,7 +116,7 @@ class OccupancyPredictionServiceTest {
     }
 
     @Test
-    void testGetDailyPredictionsReturnsAllStopsForRoute() {
+    void testGetTodayPredictionsReturnsAllStopsForRoute() {
         var route = new Route(1L, "7A", List.of(), List.of());
         var stop1 = new Stop(1L, "Central Station", 55.7558, 37.6173, route, List.of());
         var stop2 = new Stop(2L, "Downtown", 55.7558, 37.6173, route, List.of());
@@ -128,7 +128,7 @@ class OccupancyPredictionServiceTest {
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getDailyPredictions("7A");
+        var result = predictionService.getTodayPredictions("7A");
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getStopName()).isEqualTo("Central Station");
