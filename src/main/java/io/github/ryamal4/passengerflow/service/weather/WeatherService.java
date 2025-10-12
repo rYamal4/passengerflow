@@ -32,7 +32,7 @@ public class WeatherService implements IWeatherService {
                 .queryParam("latitude", latitude)
                 .queryParam("longitude", longitude)
                 .queryParam("hourly", "weather_code")
-                .queryParam("timezone", timeZone.getDisplayName())
+                .queryParam("timezone", timeZone.getID())
                 .queryParam("start_date", date)
                 .queryParam("end_date", date)
                 .build()
