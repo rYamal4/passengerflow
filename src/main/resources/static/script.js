@@ -10,6 +10,7 @@ let buses = [];
 let stops = [];
 let isEditMode = false;
 let editingId = null;
+let totalPagesGlobal = 0;
 
 // API Service
 class ApiService {
@@ -116,7 +117,6 @@ class UIManager {
             this.populateForm(data);
         } else {
             this.clearForm();
-            // Set current datetime as default
             document.getElementById('modalTimestamp').value = new Date().toISOString().slice(0, 16);
         }
 
@@ -228,19 +228,24 @@ class UIManager {
         const nextBtn = document.getElementById('nextPage');
         const lastBtn = document.getElementById('lastPage');
 
-        const { number = 0, size = DEFAULT_PAGE_SIZE, totalElements = 0, totalPages = 0 } = data;
+        const pageInfo = data.page || {};
+        const number = pageInfo.number || 0;
+        const size = pageInfo.size || DEFAULT_PAGE_SIZE;
+        const totalElements = pageInfo.totalElements || 0;
+        const totalPages = pageInfo.totalPages || 0;
+
+        totalPagesGlobal = totalPages;
+
         const start = totalElements > 0 ? number * size + 1 : 0;
         const end = Math.min((number + 1) * size, totalElements);
 
         info.textContent = `Записи ${start}-${end} из ${totalElements}`;
 
-        // Enable/disable navigation buttons
         firstBtn.disabled = number === 0;
         prevBtn.disabled = number === 0;
-        nextBtn.disabled = number >= totalPages - 1;
-        lastBtn.disabled = number >= totalPages - 1;
+        nextBtn.disabled = number >= totalPages - 1 || totalPages === 0;
+        lastBtn.disabled = number >= totalPages - 1 || totalPages === 0;
 
-        // Generate page numbers
         pageNumbers.innerHTML = '';
         const maxVisiblePages = 5;
         let startPage = Math.max(0, number - Math.floor(maxVisiblePages / 2));
@@ -286,7 +291,6 @@ class UIManager {
             select.appendChild(option);
         });
 
-        // Restore previous value if it exists
         if (currentValue) {
             select.value = currentValue;
         }
@@ -330,12 +334,10 @@ class ToastManager {
 
         container.appendChild(toast);
 
-        // Auto remove
         const timeout = setTimeout(() => {
             this.remove(toast);
         }, duration);
 
-        // Manual close
         toast.querySelector('.toast-close').onclick = () => {
             clearTimeout(timeout);
             this.remove(toast);
@@ -442,11 +444,9 @@ async function loadReferenceData() {
         buses = busesData;
         stops = stopsData;
 
-        // Populate filter selects
         UIManager.populateSelect('busFilter', buses, 'id', 'busModelName', 'Все автобусы');
         UIManager.populateSelect('stopFilter', stops, 'id', 'name', 'Все остановки');
 
-        // Populate modal selects with more detailed info
         const modalBusSelect = document.getElementById('modalBusId');
         const modalStopSelect = document.getElementById('modalStopId');
 
@@ -507,7 +507,6 @@ async function handleFormSubmit(event) {
     const btnText = saveBtn.querySelector('.btn-text');
     const btnSpinner = saveBtn.querySelector('.btn-spinner');
 
-    // Show loading state
     saveBtn.disabled = true;
     btnText.style.display = 'none';
     btnSpinner.style.display = 'block';
@@ -522,14 +521,12 @@ async function handleFormSubmit(event) {
             timestamp: formData.get('timestamp')
         };
 
-        // Validate
         const errors = ValidationManager.validateForm(data);
         if (Object.keys(errors).length > 0) {
             ValidationManager.showErrors(errors);
             return;
         }
 
-        // Save
         if (isEditMode) {
             await ApiService.updateRecord(editingId, data);
             ToastManager.success('Запись успешно обновлена');
@@ -545,7 +542,6 @@ async function handleFormSubmit(event) {
         console.error('Error saving record:', error);
         ToastManager.error('Не удалось сохранить запись: ' + error.message);
     } finally {
-        // Reset button state
         saveBtn.disabled = false;
         btnText.style.display = 'inline';
         btnSpinner.style.display = 'none';
@@ -608,7 +604,6 @@ async function handleAggregationConfirm() {
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', async () => {
-    // Set up event listeners
     document.getElementById('addNewRecord').onclick = handleAddClick;
     document.getElementById('aggregateData').onclick = handleAggregateClick;
     document.getElementById('recordForm').onsubmit = handleFormSubmit;
@@ -624,15 +619,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('refreshData').onclick = handleRefreshData;
     document.getElementById('pageSize').onchange = handlePageSizeChange;
 
-    // Pagination controls
     document.getElementById('firstPage').onclick = () => loadData(0);
     document.getElementById('prevPage').onclick = () => loadData(Math.max(0, currentPage - 1));
     document.getElementById('nextPage').onclick = () => loadData(currentPage + 1);
     document.getElementById('lastPage').onclick = () => {
-        // This will be set properly after first load
+        if (totalPagesGlobal > 0) {
+            loadData(totalPagesGlobal - 1);
+        }
     };
 
-    // Close modals on overlay click
     document.getElementById('modalOverlay').onclick = (e) => {
         if (e.target === e.currentTarget) UIManager.hideModal();
     };
@@ -643,7 +638,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target === e.currentTarget) UIManager.hideAggregationModal();
     };
 
-    // Close modals on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             UIManager.hideModal();
@@ -652,12 +646,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Load initial data
     await loadReferenceData();
     await loadData();
 });
 
-// CSS for slide out animation
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideOutRight {
