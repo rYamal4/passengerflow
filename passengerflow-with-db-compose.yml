@@ -2,14 +2,16 @@ services:
   passengerflow:
     build: .
     ports:
-      - "9001:9001"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+      - SERVER_PORT=${SERVER_PORT}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_TOKEN_SECRET=${JWT_TOKEN_SECRET}
     depends_on:
       - postgres
     restart: unless-stopped
@@ -24,7 +26,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./pg_dump.sql:/docker-entrypoint-initdb.d/pg_dump.sql:ro
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
     restart: unless-stopped
 
 volumes:
