@@ -4,12 +4,12 @@ services:
     ports:
       - "9001:9001"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${DB_NAME}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_TOKEN_SECRET=${JWT_TOKEN_SECRET}
     depends_on:
       - postgres
     restart: unless-stopped
