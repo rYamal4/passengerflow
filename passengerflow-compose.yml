@@ -2,8 +2,10 @@ services:
   passengerflow:
     build: .
     ports:
-      - "8080:8080"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}
+      - SERVER_PORT=${SERVER_PORT}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}

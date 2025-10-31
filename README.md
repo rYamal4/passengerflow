@@ -20,11 +20,19 @@ forecasting capabilities.
 You need these environment variables to run the app:
 
 ```properties
+# Application Configuration
+SPRING_PROFILE=dev
+SERVER_PORT=8080
+
+# Database Configuration
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=passengerflow
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
+
+# JWT Security Configuration
+JWT_TOKEN_SECRET=your_base64_secret
 ```
 
 ### Running the Application
@@ -56,7 +64,7 @@ java -jar passengerflow.jar
 
 #### Option 3: Running with Docker
 
-Run the application using Docker Compose (requires `.env` file with environment variables):
+Run the application using Docker Compose:
 
 ```bash
 # If you have your own PostgreSQL database
