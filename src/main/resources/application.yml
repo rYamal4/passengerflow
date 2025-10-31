@@ -13,6 +13,14 @@ spring:
 open-meteo:
   api:
     url: https://api.open-meteo.com/v1/forecast
+jwt:
+  token-secret: ${JWT_TOKEN_SECRET}
+  access-token-duration-minute: 5
+  access-token-duration-second: 300
+  refresh-token-duration-day: 7
+  refresh-token-duration-second: 604800
+  access-cookie-name: access_token
+  refresh-cookie-name: refresh_token
 ---
 spring:
   config:

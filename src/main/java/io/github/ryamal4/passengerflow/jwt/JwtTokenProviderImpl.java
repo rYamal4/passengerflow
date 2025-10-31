@@ -24,7 +24,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtTokenProviderImpl implements JwtTokenProvider {
-    @Value("${JWT_TOKEN_SECRET}")
+    @Value("${jwt.token-secret}")
     private String jwtSecret;
 
     @Override

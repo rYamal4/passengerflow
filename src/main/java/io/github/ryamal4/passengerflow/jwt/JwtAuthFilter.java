@@ -21,7 +21,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    @Value("${JWT_ACCESS_COOKIE_NAME}")
+    @Value("${jwt.access-cookie-name}")
     private String accessTokenCookieName;
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
