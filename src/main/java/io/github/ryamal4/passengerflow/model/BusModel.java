@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(of = {"id"})
 public class BusModel {
     @Id
@@ -24,6 +25,8 @@ public class BusModel {
 
     @Column
     private Integer capacity;
+
+    private String fileName;
 
     @OneToMany(mappedBy = "busModel")
     @Setter(AccessLevel.PRIVATE)

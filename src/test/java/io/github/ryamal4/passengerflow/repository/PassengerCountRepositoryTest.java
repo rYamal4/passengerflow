@@ -40,10 +40,18 @@ class PassengerCountRepositoryTest extends AbstractTestContainerTest {
         var route2 = new Route(null, "Route 2", new ArrayList<>(), new ArrayList<>());
         entityManager.persistAndFlush(route2);
 
-        var busModel1 = new BusModel(null, "Volvo 7900", 50, new ArrayList<>());
+        var busModel1 = BusModel.builder()
+                .name("Volvo 7900")
+                .capacity(50)
+                .buses(new ArrayList<>())
+                .build();
         entityManager.persistAndFlush(busModel1);
 
-        var busModel2 = new BusModel(null, "Mercedes Citaro", 60, new ArrayList<>());
+        var busModel2 = BusModel.builder()
+                .name("Mercedes Citaro")
+                .capacity(60)
+                .buses(new ArrayList<>())
+                .build();
         entityManager.persistAndFlush(busModel2);
 
         bus1 = new Bus(null, busModel1, route1, new ArrayList<>());
