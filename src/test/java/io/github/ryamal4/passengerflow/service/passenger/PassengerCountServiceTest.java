@@ -268,7 +268,12 @@ class PassengerCountServiceTest {
     }
 
     private Bus createBusWithModel(Long busId, Long modelId, String modelName, Route route) {
-        var busModel = new BusModel(modelId, modelName, 50, new ArrayList<>());
+        var busModel = BusModel.builder()
+                .id(modelId)
+                .name(modelName)
+                .capacity(50)
+                .buses(new ArrayList<>())
+                .build();
         return new Bus(busId, busModel, route, new ArrayList<>());
     }
 

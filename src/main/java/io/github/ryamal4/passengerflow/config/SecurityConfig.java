@@ -31,7 +31,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-resources/**",
             "/configuration/**",
-            "/webjars/**"
+            "/webjars/**",
+            "/files/**"
     };
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
