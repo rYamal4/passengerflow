@@ -18,13 +18,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private static final List<String> ALLOWED_ORIGINS = List.of(
+            "http://localhost:3000",
+            "http://localhost:5173"
+    );
     private static final String[] ALLOWED_URLS = {
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -49,37 +53,30 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable);
-        http
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedMethods(Collections.singletonList("*"));
-                    configuration.setAllowCredentials(true);
-                    configuration.setAllowedHeaders(Collections.singletonList("*"));
-                    configuration.setMaxAge(3600L);
-                    return configuration;
-                }));
-        http
-                .authorizeHttpRequests(authorize -> {
-                    authorize.requestMatchers(ALLOWED_URLS).permitAll();
-                    authorize.requestMatchers("/api/auth/login")
-                            .permitAll();
-                    authorize.requestMatchers("/api/auth/refresh")
-                            .permitAll();
-                    authorize.anyRequest().authenticated();
-                });
-        http
-                .sessionManagement(session -> session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS));
-        http
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(jwtAuthEntryPoint));
-        http
-                // .formLogin(login -> login.loginProcessingUrl("/api/auth/login"))
-                .addFilterBefore(jwtAuthFilter,
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(cors -> cors.configurationSource(request -> {
+            var configuration = new CorsConfiguration();
+            configuration.setAllowedOrigins(ALLOWED_ORIGINS);
+            configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            configuration.setAllowedHeaders(List.of("*"));
+            configuration.setAllowCredentials(true);
+            configuration.setMaxAge(3600L);
+            return configuration;
+        }));
+        http.authorizeHttpRequests(authorize -> {
+            authorize.requestMatchers(ALLOWED_URLS).permitAll();
+            authorize.requestMatchers("/api/auth/login")
+                    .permitAll();
+            authorize.requestMatchers("/api/auth/refresh")
+                    .permitAll();
+            authorize.anyRequest().authenticated();
+        });
+        http.sessionManagement(session -> session.sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS));
+        http.exceptionHandling(exception ->
+                exception.authenticationEntryPoint(jwtAuthEntryPoint));
+        http.addFilterBefore(jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

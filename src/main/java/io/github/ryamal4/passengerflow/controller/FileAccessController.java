@@ -1,5 +1,6 @@
 package io.github.ryamal4.passengerflow.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -15,15 +16,23 @@ import java.nio.file.Paths;
 @RestController
 public class FileAccessController {
 
-    private final String uploadDir = "uploads";
+    private final Path uploadPath;
+
+    public FileAccessController(@Value("${upload.path}") String uploadDir) {
+        this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+    }
 
     @GetMapping("/files/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
-            var file = Paths.get(uploadDir).resolve(filename);
+            var file = uploadPath.resolve(filename).normalize();
+            if (!file.startsWith(uploadPath)) {
+                return ResponseEntity.badRequest().build();
+            }
+
             var resource = new UrlResource(file.toUri());
 
-            if (resource.exists() || resource.isReadable()) {
+            if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
                         .header(HttpHeaders.CONTENT_DISPOSITION,

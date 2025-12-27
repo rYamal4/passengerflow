@@ -17,14 +17,7 @@ public class BusService implements IBusService {
         this.busRepository = busRepository;
     }
 
-    @Override
-    public List<BusDTO> getAllBuses() {
-        return busRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .toList();
-    }
-
-    private BusDTO convertToDTO(Bus entity) {
+    private static BusDTO convertToDTO(Bus entity) {
         var dto = new BusDTO();
         dto.setId(entity.getId());
         dto.setBusModelId(entity.getBusModel().getId());
@@ -33,5 +26,12 @@ public class BusService implements IBusService {
         dto.setRouteId(entity.getRoute().getId());
         dto.setRouteName(entity.getRoute().getName());
         return dto;
+    }
+
+    @Override
+    public List<BusDTO> getAllBuses() {
+        return busRepository.findAll().stream()
+                .map(BusService::convertToDTO)
+                .toList();
     }
 }

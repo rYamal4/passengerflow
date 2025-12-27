@@ -3,7 +3,6 @@ package io.github.ryamal4.passengerflow.service.busmodel;
 import io.github.ryamal4.passengerflow.dto.BusModelDTO;
 import io.github.ryamal4.passengerflow.model.BusModel;
 import io.github.ryamal4.passengerflow.repository.IBusModelRepository;
-import io.github.ryamal4.passengerflow.service.IBusModelService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

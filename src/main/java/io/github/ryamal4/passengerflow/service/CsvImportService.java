@@ -2,6 +2,7 @@ package io.github.ryamal4.passengerflow.service;
 
 import io.github.ryamal4.passengerflow.dto.CsvImportResult;
 import io.github.ryamal4.passengerflow.model.BusModel;
+import io.github.ryamal4.passengerflow.service.busmodel.IBusModelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -21,7 +22,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class CsvImportService {
-    IBusModelService service;
+    private final IBusModelService service;
 
     private CSVFormat createFormat() {
         return CSVFormat.DEFAULT.builder()
