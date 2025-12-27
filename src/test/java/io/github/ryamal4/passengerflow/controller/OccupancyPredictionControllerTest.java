@@ -4,6 +4,7 @@ import io.github.ryamal4.passengerflow.dto.OccupancyPredictionDTO;
 import io.github.ryamal4.passengerflow.service.prediction.IOccupancyPredictionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -11,8 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.jupiter.api.Disabled;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,9 +21,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Disabled("Controller tests require security context setup")
 @WebMvcTest(OccupancyPredictionController.class)
-class OccupancyPredictionControllerTest {
+@AutoConfigureMockMvc(addFilters = false)
+class OccupancyPredictionControllerTest extends AbstractControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

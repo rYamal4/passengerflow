@@ -4,6 +4,7 @@ import io.github.ryamal4.passengerflow.dto.BusDTO;
 import io.github.ryamal4.passengerflow.service.bus.IBusService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -11,15 +12,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Disabled("Controller tests require security context setup")
 @WebMvcTest(BusController.class)
-class BusControllerTest {
+@AutoConfigureMockMvc(addFilters = false)
+class BusControllerTest extends AbstractControllerTest {
 
     private static final String BASE_URL = "/api/buses";
 
