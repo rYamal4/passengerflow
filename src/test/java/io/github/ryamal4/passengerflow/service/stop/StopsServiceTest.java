@@ -64,14 +64,22 @@ class StopsServiceTest {
     }
 
     @Test
-    void testGetNearbyStopsThrowsExceptionForInvalidLat() {
+    void testGetNearbyStopsThrowsExceptionForLatAbove90() {
         assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(91, TEST_LON));
+    }
+
+    @Test
+    void testGetNearbyStopsThrowsExceptionForLatBelowMinus90() {
         assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(-91, TEST_LON));
     }
 
     @Test
-    void testGetNearbyStopsThrowsExceptionForInvalidLon() {
+    void testGetNearbyStopsThrowsExceptionForLonAbove180() {
         assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(TEST_LAT, 181));
+    }
+
+    @Test
+    void testGetNearbyStopsThrowsExceptionForLonBelowMinus180() {
         assertThrows(IllegalArgumentException.class, () -> stopsService.getNearbyStops(TEST_LAT, -181));
     }
 
