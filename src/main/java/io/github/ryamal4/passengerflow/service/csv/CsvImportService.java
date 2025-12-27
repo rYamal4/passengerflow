@@ -52,17 +52,17 @@ public class CsvImportService implements ICsvImportService {
         }
     }
 
-    private void processCsv(CSVRecord record, List<BusModel> models, List<String> errors) {
+    private void processCsv(CSVRecord csvRecord, List<BusModel> models, List<String> errors) {
         try {
             var model = new BusModel();
 
-            model.setId(Long.valueOf(record.get("id")));
-            model.setName(record.get("name"));
-            model.setCapacity(Integer.valueOf(record.get("capacity")));
+            model.setId(Long.valueOf(csvRecord.get("id")));
+            model.setName(csvRecord.get("name"));
+            model.setCapacity(Integer.valueOf(csvRecord.get("capacity")));
 
             models.add(model);
         } catch (NumberFormatException e) {
-            errors.add("Строка " + record.getRecordNumber() + " : некорректные данные");
+            errors.add("Строка " + csvRecord.getRecordNumber() + " : некорректные данные");
         }
     }
 
