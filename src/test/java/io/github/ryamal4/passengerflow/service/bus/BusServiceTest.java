@@ -40,17 +40,25 @@ class BusServiceTest {
 
     @Test
     void testGetAllBusesSuccess() {
-        List<Bus> buses = List.of(bus1, bus2, bus3);
-
+        var buses = List.of(bus1, bus2, bus3);
         when(busRepository.findAll()).thenReturn(buses);
 
-        List<BusDTO> result = busService.getAllBuses();
+        var result = busService.getAllBuses();
 
         assertThat(result).hasSize(3);
         assertDtoIsCorrect(result.get(0), bus1);
         assertDtoIsCorrect(result.get(1), bus2);
         assertDtoIsCorrect(result.get(2), bus3);
+        verify(busRepository).findAll();
+    }
 
+    @Test
+    void testGetAllBusesEmptyList() {
+        when(busRepository.findAll()).thenReturn(List.of());
+
+        var result = busService.getAllBuses();
+
+        assertThat(result).isEmpty();
         verify(busRepository).findAll();
     }
 

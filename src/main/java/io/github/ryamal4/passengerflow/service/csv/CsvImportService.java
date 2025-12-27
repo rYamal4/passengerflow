@@ -1,4 +1,4 @@
-package io.github.ryamal4.passengerflow.service;
+package io.github.ryamal4.passengerflow.service.csv;
 
 import io.github.ryamal4.passengerflow.dto.CsvImportResult;
 import io.github.ryamal4.passengerflow.model.BusModel;
