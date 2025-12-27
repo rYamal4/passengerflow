@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CsvImportService {
+public class CsvImportService implements ICsvImportService {
     private final IBusModelService service;
 
     private CSVFormat createFormat() {
@@ -33,6 +33,7 @@ public class CsvImportService {
                 .get();
     }
 
+    @Override
     public CsvImportResult importStopsFromCsv(MultipartFile file) {
         List<BusModel> valid = new ArrayList<>();
         List<String> errors = new ArrayList<>();
@@ -62,7 +63,6 @@ public class CsvImportService {
             models.add(model);
         } catch (NumberFormatException e) {
             errors.add("Строка " + record.getRecordNumber() + " : некорректные данные");
-            throw new IllegalArgumentException("Некорректное значение");
         }
     }
 
