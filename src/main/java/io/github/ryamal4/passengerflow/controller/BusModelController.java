@@ -1,7 +1,9 @@
 package io.github.ryamal4.passengerflow.controller;
 
+import io.github.ryamal4.passengerflow.dto.CsvImportResult;
 import io.github.ryamal4.passengerflow.dto.UploadResponse;
 import io.github.ryamal4.passengerflow.service.busmodel.BusModelService;
+import io.github.ryamal4.passengerflow.service.csv.ICsvImportService;
 import io.github.ryamal4.passengerflow.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.io.IOException;
 public class BusModelController {
     private final FileService fileService;
     private final BusModelService busModelService;
+    private final ICsvImportService csvImportService;
 
     @PostMapping("/{id}/upload")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -61,5 +64,12 @@ public class BusModelController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(response);
         }
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<CsvImportResult> importFromCsv(@RequestParam("file") MultipartFile file) {
+        var result = csvImportService.importBusModelsFromCsv(file);
+        return ResponseEntity.ok(result);
     }
 }

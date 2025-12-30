@@ -34,7 +34,7 @@ public class CsvImportService implements ICsvImportService {
     }
 
     @Override
-    public CsvImportResult importStopsFromCsv(MultipartFile file) {
+    public CsvImportResult importBusModelsFromCsv(MultipartFile file) {
         List<BusModel> valid = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         try (var reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));

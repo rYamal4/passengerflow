@@ -35,7 +35,7 @@ class CsvImportServiceTest {
     void testImportValidCsvSuccess() {
         var file = createCsvFile(VALID_CSV_CONTENT);
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isEqualTo(3);
         assertThat(result.getFailedCount()).isZero();
@@ -49,7 +49,7 @@ class CsvImportServiceTest {
         var file = createCsvFile(VALID_CSV_CONTENT);
         var captor = ArgumentCaptor.forClass(BusModel.class);
 
-        csvImportService.importStopsFromCsv(file);
+        csvImportService.importBusModelsFromCsv(file);
 
         verify(busModelService, times(3)).create(captor.capture());
         var models = captor.getAllValues();
@@ -71,7 +71,7 @@ class CsvImportServiceTest {
     void testImportEmptyCsvReturnsZeroCounts() {
         var file = createCsvFile("id,name,capacity\n");
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isZero();
         assertThat(result.getFailedCount()).isZero();
@@ -87,7 +87,7 @@ class CsvImportServiceTest {
                 """;
         var file = createCsvFile(content);
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isZero();
         assertThat(result.getErrors()).hasSize(1);
@@ -104,7 +104,7 @@ class CsvImportServiceTest {
                 """;
         var file = createCsvFile(content);
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isZero();
         assertThat(result.getErrors()).hasSize(1);
@@ -122,7 +122,7 @@ class CsvImportServiceTest {
                 """;
         var file = createCsvFile(content);
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isEqualTo(2);
         assertThat(result.getErrors()).hasSize(1);
@@ -140,7 +140,7 @@ class CsvImportServiceTest {
         var file = createCsvFile(content);
         doThrow(new RuntimeException("Duplicate name")).when(busModelService).create(argThat(m -> m.getId() == 1L));
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isEqualTo(1);
         assertThat(result.getFailedCount()).isEqualTo(1);
@@ -152,7 +152,7 @@ class CsvImportServiceTest {
         var file = mock(MockMultipartFile.class);
         when(file.getInputStream()).thenThrow(new IOException("File read error"));
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isZero();
         assertThat(result.getFailedCount()).isZero();
@@ -170,7 +170,7 @@ class CsvImportServiceTest {
         var file = createCsvFile(content);
         var captor = ArgumentCaptor.forClass(BusModel.class);
 
-        csvImportService.importStopsFromCsv(file);
+        csvImportService.importBusModelsFromCsv(file);
 
         verify(busModelService).create(captor.capture());
         assertThat(captor.getValue().getName()).isEqualTo("Trimmed Name");
@@ -184,7 +184,7 @@ class CsvImportServiceTest {
                 """;
         var file = createCsvFile(content);
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isEqualTo(1);
         verify(busModelService).create(any(BusModel.class));
@@ -195,7 +195,7 @@ class CsvImportServiceTest {
         var file = createCsvFile(VALID_CSV_CONTENT);
         doThrow(new RuntimeException("DB error")).when(busModelService).create(any(BusModel.class));
 
-        var result = csvImportService.importStopsFromCsv(file);
+        var result = csvImportService.importBusModelsFromCsv(file);
 
         assertThat(result.getSuccessCount()).isZero();
         assertThat(result.getFailedCount()).isEqualTo(3);
