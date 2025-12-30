@@ -96,9 +96,9 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
         var settingsOpt = botUserSettingsRepository.findByTelegramChatId(chatId);
         if (settingsOpt.isPresent()) {
             var username = settingsOpt.get().getUser().getUsername();
-            notificationService.sendMessage(chatId, "Вы вошли как " + username + "\n\n" + getAuthorizedHelp());
+            notificationService.sendMessage(chatId, BotMessages.loggedInAs(username));
         } else {
-            notificationService.sendMessage(chatId, getUnauthorizedHelp());
+            notificationService.sendMessage(chatId, BotMessages.WELCOME);
         }
     }
 
@@ -106,12 +106,12 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
         var existingSettings = botUserSettingsRepository.findByTelegramChatId(chatId);
         if (existingSettings.isPresent()) {
             var username = existingSettings.get().getUser().getUsername();
-            notificationService.sendMessage(chatId, "Вы уже вошли как " + username + ". Используйте /logout для выхода.");
+            notificationService.sendMessage(chatId, BotMessages.alreadyLoggedIn(username));
             return;
         }
 
         loginStates.put(chatId, new LoginState());
-        notificationService.sendMessage(chatId, "Введите ваш логин:");
+        notificationService.sendMessage(chatId, BotMessages.ENTER_LOGIN);
     }
 
     private void handleLoginFlow(Long chatId, String text) {
@@ -119,7 +119,7 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
 
         if (state.username == null) {
             state.username = text;
-            notificationService.sendMessage(chatId, "Введите ваш пароль:");
+            notificationService.sendMessage(chatId, BotMessages.ENTER_PASSWORD);
         } else {
             completeLogin(chatId, state.username, text);
             loginStates.remove(chatId);
@@ -132,13 +132,13 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
                     new UsernamePasswordAuthenticationToken(username, password)
             );
         } catch (AuthenticationException e) {
-            notificationService.sendMessage(chatId, "Неверный логин или пароль. Попробуйте снова: /login");
+            notificationService.sendMessage(chatId, BotMessages.INVALID_CREDENTIALS);
             return;
         }
 
         var userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
-            notificationService.sendMessage(chatId, "Пользователь не найден.");
+            notificationService.sendMessage(chatId, BotMessages.USER_NOT_FOUND);
             return;
         }
 
@@ -157,81 +157,63 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
             botUserSettingsRepository.save(settings);
         }
 
-        notificationService.sendMessage(chatId, "✅ Вы вошли как " + username + "\n\n" + getAuthorizedHelp());
+        notificationService.sendMessage(chatId, BotMessages.loginSuccess(username));
     }
 
     private void handleLogoutCommand(Long chatId) {
         var settingsOpt = botUserSettingsRepository.findByTelegramChatId(chatId);
         if (settingsOpt.isEmpty()) {
-            notificationService.sendMessage(chatId, "Вы не авторизованы. Используйте /login для входа.");
+            notificationService.sendMessage(chatId, BotMessages.NOT_AUTHORIZED);
             return;
         }
 
         botUserSettingsRepository.delete(settingsOpt.get());
-        notificationService.sendMessage(chatId, "Вы вышли из аккаунта.");
+        notificationService.sendMessage(chatId, BotMessages.LOGOUT_SUCCESS);
     }
 
     private void handleSubscribeLoginCommand(Long chatId) {
         var settingsOpt = botUserSettingsRepository.findByTelegramChatId(chatId);
         if (settingsOpt.isEmpty()) {
-            notificationService.sendMessage(chatId, "Сначала войдите: /login");
+            notificationService.sendMessage(chatId, BotMessages.LOGIN_REQUIRED);
             return;
         }
 
         var settings = settingsOpt.get();
         if (settings.getEnabledNotifications().contains(NotificationType.LOGIN)) {
-            notificationService.sendMessage(chatId, "Вы уже подписаны на уведомления о входе.");
+            notificationService.sendMessage(chatId, BotMessages.ALREADY_SUBSCRIBED_LOGIN);
             return;
         }
 
         settings.getEnabledNotifications().add(NotificationType.LOGIN);
         botUserSettingsRepository.save(settings);
-        notificationService.sendMessage(chatId, "✅ Вы подписались на уведомления о входе.");
+        notificationService.sendMessage(chatId, BotMessages.SUBSCRIBED_LOGIN_SUCCESS);
     }
 
     private void handleUnsubscribeLoginCommand(Long chatId) {
         var settingsOpt = botUserSettingsRepository.findByTelegramChatId(chatId);
         if (settingsOpt.isEmpty()) {
-            notificationService.sendMessage(chatId, "Сначала войдите: /login");
+            notificationService.sendMessage(chatId, BotMessages.LOGIN_REQUIRED);
             return;
         }
 
         var settings = settingsOpt.get();
         if (!settings.getEnabledNotifications().contains(NotificationType.LOGIN)) {
-            notificationService.sendMessage(chatId, "Вы не подписаны на уведомления о входе.");
+            notificationService.sendMessage(chatId, BotMessages.NOT_SUBSCRIBED_LOGIN);
             return;
         }
 
         settings.getEnabledNotifications().remove(NotificationType.LOGIN);
         botUserSettingsRepository.save(settings);
-        notificationService.sendMessage(chatId, "Вы отписались от уведомлений о входе.");
+        notificationService.sendMessage(chatId, BotMessages.UNSUBSCRIBED_LOGIN_SUCCESS);
     }
 
     private void handleUnknownCommand(Long chatId) {
         var settingsOpt = botUserSettingsRepository.findByTelegramChatId(chatId);
         if (settingsOpt.isEmpty()) {
-            notificationService.sendMessage(chatId, "Сначала войдите: /login");
+            notificationService.sendMessage(chatId, BotMessages.LOGIN_REQUIRED);
         } else {
-            notificationService.sendMessage(chatId, getAuthorizedHelp());
+            notificationService.sendMessage(chatId, BotMessages.HELP_AUTHORIZED);
         }
-    }
-
-    private String getUnauthorizedHelp() {
-        return """
-                Добро пожаловать в PassengerFlow Bot!
-                
-                Для начала работы войдите в систему:
-                /login - войти в аккаунт
-                """;
-    }
-
-    private String getAuthorizedHelp() {
-        return """
-                Доступные команды:
-                /subscribe_login - подписаться на уведомления о входе
-                /unsubscribe_login - отписаться от уведомлений о входе
-                /logout - выйти из аккаунта
-                """;
     }
 
     private static class LoginState {

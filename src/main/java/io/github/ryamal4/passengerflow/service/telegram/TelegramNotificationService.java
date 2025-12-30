@@ -53,11 +53,6 @@ public class TelegramNotificationService {
     }
 
     private String formatLoginMessage(String username, LocalDateTime timestamp) {
-        return """
-                🔐 Вход в систему PassengerFlow
-
-                Пользователь: %s
-                Время: %s
-                """.formatted(username, timestamp.format(FORMATTER));
+        return BotMessages.LOGIN_NOTIFICATION.formatted(username, timestamp.format(FORMATTER));
     }
 }
