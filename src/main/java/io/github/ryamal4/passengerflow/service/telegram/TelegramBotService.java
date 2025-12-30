@@ -17,7 +17,6 @@ import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +41,6 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
 
     public TelegramBotService(
             @Value("${telegram.bot.token}") String botToken,
-            TelegramClient telegramClient,
             TelegramNotificationService notificationService,
             AuthenticationManager authenticationManager,
             UserRepository userRepository,
@@ -225,7 +223,7 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
     private String getUnauthorizedHelp() {
         return """
                 Добро пожаловать в PassengerFlow Bot!
-
+                
                 Для начала работы войдите в систему:
                 /login - войти в аккаунт
                 """;
