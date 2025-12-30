@@ -4,7 +4,7 @@ import io.github.ryamal4.passengerflow.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -25,10 +25,10 @@ public class BotUserSettings {
 
     private Long telegramChatId;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "bot_user_notifications", joinColumns = @JoinColumn(name = "settings_id"))
     @Column(name = "notification_type")
     @Builder.Default
-    private Set<NotificationType> enabledNotifications = EnumSet.of(NotificationType.LOGIN);
+    private Set<NotificationType> enabledNotifications = new HashSet<>();
 }

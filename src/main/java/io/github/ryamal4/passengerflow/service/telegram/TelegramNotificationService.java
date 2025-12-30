@@ -5,7 +5,7 @@ import io.github.ryamal4.passengerflow.model.User;
 import io.github.ryamal4.passengerflow.repository.BotUserSettingsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "telegram.bot.token")
+@ConditionalOnExpression("!'${telegram.bot.token:}'.isEmpty()")
 public class TelegramNotificationService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 

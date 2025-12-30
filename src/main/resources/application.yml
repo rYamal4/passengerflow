@@ -21,7 +21,7 @@ open-meteo:
     url: https://api.open-meteo.com/v1/forecast
 telegram:
   bot:
-    token: ${TELEGRAM_BOT_TOKEN}
+    token: ${TELEGRAM_BOT_TOKEN:}
 jwt:
   token-secret: ${JWT_TOKEN_SECRET}
   access-token-duration-minute: 5
