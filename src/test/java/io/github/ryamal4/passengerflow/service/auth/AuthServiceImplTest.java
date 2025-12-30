@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,6 +55,8 @@ class AuthServiceImplTest {
     @Mock
     private AuthenticationManager authenticationManager;
     @Mock
+    private ApplicationEventPublisher eventPublisher;
+    @Mock
     private Authentication authentication;
     @Mock
     private HttpCookie httpCookie;
@@ -62,7 +65,6 @@ class AuthServiceImplTest {
     private AuthServiceImpl authService;
 
     private User testUser;
-    private Role testRole;
     private Token accessToken;
     private Token refreshToken;
 
@@ -73,7 +75,7 @@ class AuthServiceImplTest {
         ReflectionTestUtils.setField(authService, "refreshTokenDurationDay", 7L);
         ReflectionTestUtils.setField(authService, "refreshTokenDurationSecond", 604800L);
 
-        testRole = Role.builder()
+        Role testRole = Role.builder()
                 .id(1L)
                 .name(ROLE_USER)
                 .permissions(Set.of())

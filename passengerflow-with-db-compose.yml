@@ -12,6 +12,7 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_TOKEN_SECRET=${JWT_TOKEN_SECRET}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     depends_on:
       - postgres
     restart: unless-stopped

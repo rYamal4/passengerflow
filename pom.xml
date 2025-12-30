@@ -114,6 +114,16 @@
             <artifactId>commons-csv</artifactId>
             <version>1.14.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-springboot-longpolling-starter</artifactId>
+            <version>8.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-client</artifactId>
+            <version>8.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
