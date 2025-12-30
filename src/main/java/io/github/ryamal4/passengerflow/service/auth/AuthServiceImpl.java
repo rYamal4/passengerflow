@@ -3,6 +3,7 @@ package io.github.ryamal4.passengerflow.service.auth;
 import io.github.ryamal4.passengerflow.dto.LoginRequest;
 import io.github.ryamal4.passengerflow.dto.LoginResponse;
 import io.github.ryamal4.passengerflow.dto.UserLoggedDto;
+import io.github.ryamal4.passengerflow.event.LoginEvent;
 import io.github.ryamal4.passengerflow.exception.AppException;
 import io.github.ryamal4.passengerflow.jwt.JwtTokenProviderImpl;
 import io.github.ryamal4.passengerflow.model.Token;
@@ -20,6 +21,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProviderImpl tokenProvider;
     private final CookieUtil cookieUtil;
     private final AuthenticationManager authenticationManager;
+    private final ApplicationEventPublisher eventPublisher;
     @Value("${jwt.access-token-duration-minute}")
     private long accessTokenDurationMinute;
     @Value("${jwt.access-token-duration-second}")
@@ -128,6 +131,8 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext()
                 .setAuthentication(authentication);
+
+        eventPublisher.publishEvent(new LoginEvent(user, LocalDateTime.now()));
 
         LoginResponse loginResponse =
                 new LoginResponse(true, user.getRole().getName());
