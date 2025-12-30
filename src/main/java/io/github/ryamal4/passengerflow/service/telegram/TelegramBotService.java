@@ -81,18 +81,14 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
             return;
         }
 
-        if (text.startsWith(CMD_START)) {
-            handleStartCommand(chatId);
-        } else if (text.startsWith(CMD_LOGIN)) {
-            handleLoginCommand(chatId);
-        } else if (text.startsWith(CMD_LOGOUT)) {
-            handleLogoutCommand(chatId);
-        } else if (text.startsWith(CMD_SUBSCRIBE_LOGIN)) {
-            handleSubscribeLoginCommand(chatId);
-        } else if (text.startsWith(CMD_UNSUBSCRIBE_LOGIN)) {
-            handleUnsubscribeLoginCommand(chatId);
-        } else {
-            handleUnknownCommand(chatId);
+        var command = text.split(" ")[0];
+        switch (command) {
+            case CMD_START -> handleStartCommand(chatId);
+            case CMD_LOGIN -> handleLoginCommand(chatId);
+            case CMD_LOGOUT -> handleLogoutCommand(chatId);
+            case CMD_SUBSCRIBE_LOGIN -> handleSubscribeLoginCommand(chatId);
+            case CMD_UNSUBSCRIBE_LOGIN -> handleUnsubscribeLoginCommand(chatId);
+            default -> handleUnknownCommand(chatId);
         }
     }
 
