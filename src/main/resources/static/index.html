@@ -3,69 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление записями пассажиропотока</title>
+    <title>PassengerFlow - Управление пассажиропотоком</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚌</text></svg>">
 </head>
 <body>
-<!-- Header Section -->
 <header class="page-header">
     <div class="container">
-        <h1>Управление записями пассажиропотока</h1>
-        <div style="display: flex; gap: 10px;">
+        <h1>PassengerFlow</h1>
+        <div class="header-actions">
             <button class="btn btn-primary" id="addNewRecord">
-                <i class="icon">+</i>
-                Добавить запись
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Добавить
             </button>
             <button class="btn btn-secondary" id="aggregateData">
-                📊 Агрегация
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                Агрегация
             </button>
-            <button class="btn btn-secondary" onclick="window.location.href='heatmap.html'">
-                🗺️ Тепловая карта
-            </button>
+            <a href="heatmap.html" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+                Тепловая карта
+            </a>
         </div>
     </div>
 </header>
 
-<!-- Filters Section -->
 <section class="filters-section">
     <div class="container">
         <div class="filters-grid">
             <div class="filter-group">
-                <label for="busFilter">Автобус:</label>
+                <label for="busFilter">Автобус</label>
                 <select id="busFilter" class="form-select">
                     <option value="">Все автобусы</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label for="stopFilter">Остановка:</label>
+                <label for="stopFilter">Остановка</label>
                 <select id="stopFilter" class="form-select">
                     <option value="">Все остановки</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label for="startTimeFilter">С даты:</label>
+                <label for="startTimeFilter">С даты</label>
                 <input type="datetime-local" id="startTimeFilter" class="form-input">
             </div>
             <div class="filter-group">
-                <label for="endTimeFilter">По дату:</label>
+                <label for="endTimeFilter">По дату</label>
                 <input type="datetime-local" id="endTimeFilter" class="form-input">
             </div>
             <div class="filter-actions">
-                <button class="btn btn-secondary" id="applyFilters">Применить</button>
-                <button class="btn btn-outline" id="clearFilters">Очистить</button>
-                <button class="btn btn-primary" id="refreshData">🔄 Обновить</button>
+                <button class="btn btn-primary" id="applyFilters">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    Применить
+                </button>
+                <button class="btn btn-outline" id="clearFilters">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Сбросить
+                </button>
+                <button class="btn btn-outline" id="refreshData">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Обновить
+                </button>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Loading Indicator -->
 <div class="loading-indicator" id="loadingIndicator" style="display: none;">
     <div class="spinner"></div>
-    <span>Загрузка...</span>
+    <span>Загрузка данных...</span>
 </div>
 
-<!-- Table Section -->
 <section class="table-section">
     <div class="container">
         <div class="table-wrapper">
@@ -83,34 +111,48 @@
                 </tr>
                 </thead>
                 <tbody id="tableBody">
-                <!-- Data will be loaded here -->
                 </tbody>
             </table>
 
-            <!-- Empty State -->
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="empty-icon">📊</div>
-                <h3>Нет записей</h3>
-                <p>Записи не найдены. Попробуйте изменить фильтры или добавить новую запись.</p>
+                <h3>Записи не найдены</h3>
+                <p>Попробуйте изменить параметры фильтрации или добавьте новую запись</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Pagination Section -->
 <section class="pagination-section">
     <div class="container">
         <div class="pagination-info">
             <span id="paginationInfo">Записи 1-20 из 100</span>
         </div>
         <div class="pagination-controls">
-            <button class="btn btn-outline" id="firstPage">«</button>
-            <button class="btn btn-outline" id="prevPage">‹</button>
+            <button class="btn btn-outline btn-icon" id="firstPage" title="Первая страница">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="11 17 6 12 11 7"></polyline>
+                    <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+            </button>
+            <button class="btn btn-outline btn-icon" id="prevPage" title="Предыдущая">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
             <div class="page-numbers" id="pageNumbers">
-                <!-- Page numbers will be generated here -->
             </div>
-            <button class="btn btn-outline" id="nextPage">›</button>
-            <button class="btn btn-outline" id="lastPage">»</button>
+            <button class="btn btn-outline btn-icon" id="nextPage" title="Следующая">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <button class="btn btn-outline btn-icon" id="lastPage" title="Последняя страница">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="13 17 18 12 13 7"></polyline>
+                    <polyline points="6 17 11 12 6 7"></polyline>
+                </svg>
+            </button>
         </div>
         <div class="page-size-selector">
             <label for="pageSize">Показать:</label>
@@ -124,7 +166,6 @@
     </div>
 </section>
 
-<!-- Modal Window -->
 <div class="modal-overlay" id="modalOverlay" style="display: none;">
     <div class="modal" id="recordModal">
         <div class="modal-header">
@@ -151,13 +192,13 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="modalEntered">Количество вошедших <span class="required">*</span></label>
-                        <input type="number" id="modalEntered" name="entered" class="form-input" min="0" required>
+                        <label for="modalEntered">Вошло <span class="required">*</span></label>
+                        <input type="number" id="modalEntered" name="entered" class="form-input" min="0" placeholder="0" required>
                         <div class="error-message" id="enteredError"></div>
                     </div>
                     <div class="form-group">
-                        <label for="modalExited">Количество вышедших <span class="required">*</span></label>
-                        <input type="number" id="modalExited" name="exited" class="form-input" min="0" required>
+                        <label for="modalExited">Вышло <span class="required">*</span></label>
+                        <input type="number" id="modalExited" name="exited" class="form-input" min="0" placeholder="0" required>
                         <div class="error-message" id="exitedError"></div>
                     </div>
                 </div>
@@ -178,12 +219,8 @@
     </div>
 </div>
 
-<!-- Toast Notifications -->
-<div class="toast-container" id="toastContainer">
-    <!-- Toasts will be dynamically added here -->
-</div>
+<div class="toast-container" id="toastContainer"></div>
 
-<!-- Confirmation Dialog -->
 <div class="modal-overlay" id="confirmationOverlay" style="display: none;">
     <div class="modal confirmation-modal">
         <div class="modal-header">
@@ -199,7 +236,6 @@
     </div>
 </div>
 
-<!-- Aggregation Dialog -->
 <div class="modal-overlay" id="aggregationOverlay" style="display: none;">
     <div class="modal">
         <div class="modal-header">
@@ -207,9 +243,9 @@
             <button class="modal-close" id="aggregationClose">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Выберите день недели для агрегации пассажиропотока:</p>
+            <p style="color: var(--gray-600); margin-bottom: 1rem;">Выберите день недели для агрегации данных пассажиропотока:</p>
             <div class="form-group">
-                <label for="dayOfWeekSelect">День недели:</label>
+                <label for="dayOfWeekSelect">День недели</label>
                 <select id="dayOfWeekSelect" class="form-select">
                     <option value="1">Понедельник</option>
                     <option value="2">Вторник</option>

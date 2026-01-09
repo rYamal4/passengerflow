@@ -8,7 +8,7 @@ let useWeather = true;
 const SVG_WIDTH = 1000;
 const SVG_HEIGHT = 600;
 const MARGIN = { top: 60, right: 80, bottom: 60, left: 80 };
-const NODE_RADIUS = 22;
+const NODE_RADIUS = 18;
 
 class ApiService {
     static async request(url) {
@@ -95,11 +95,11 @@ function getOccupancyColor(occupancy) {
     if (occupancy === null || occupancy === undefined) {
         return '#9E9E9E';
     }
-    if (occupancy < 50) return '#4CAF50';
-    if (occupancy < 80) return '#FFEB3B';
-    if (occupancy < 100) return '#FF9800';
-    if (occupancy < 120) return '#F44336';
-    return '#B71C1C';
+    if (occupancy < 50) return '#10b981';
+    if (occupancy < 80) return '#f59e0b';
+    if (occupancy < 100) return '#f97316';
+    if (occupancy < 120) return '#ef4444';
+    return '#dc2626';
 }
 
 function getOccupancyForStop(stopName, hour) {
@@ -227,10 +227,10 @@ function renderHeatmap() {
     gradient.setAttribute('gradientUnits', 'userSpaceOnUse');
     const stop1 = document.createElementNS(svgNS, 'stop');
     stop1.setAttribute('offset', '0%');
-    stop1.setAttribute('style', 'stop-color:#667eea;stop-opacity:0.6');
+    stop1.setAttribute('style', 'stop-color:#6366f1;stop-opacity:0.5');
     const stop2 = document.createElementNS(svgNS, 'stop');
     stop2.setAttribute('offset', '100%');
-    stop2.setAttribute('style', 'stop-color:#764ba2;stop-opacity:0.6');
+    stop2.setAttribute('style', 'stop-color:#8b5cf6;stop-opacity:0.5');
     gradient.appendChild(stop1);
     gradient.appendChild(stop2);
     defs.appendChild(gradient);
@@ -289,7 +289,7 @@ function renderHeatmap() {
         arrow.setAttribute('class', 'direction-arrow');
         arrow.setAttribute('points', '-6,-4 6,0 -6,4');
         arrow.setAttribute('transform', `translate(${midX},${midY}) rotate(${angle})`);
-        arrow.setAttribute('fill', '#667eea');
+        arrow.setAttribute('fill', '#6366f1');
         arrow.setAttribute('opacity', '0.7');
         pathsGroup.appendChild(arrow);
     }
@@ -308,7 +308,7 @@ function renderHeatmap() {
         const outerCircle = document.createElementNS(svgNS, 'circle');
         outerCircle.setAttribute('cx', stop.x);
         outerCircle.setAttribute('cy', stop.y);
-        outerCircle.setAttribute('r', NODE_RADIUS + 4);
+        outerCircle.setAttribute('r', NODE_RADIUS + 3);
         outerCircle.setAttribute('fill', 'white');
         outerCircle.setAttribute('filter', 'url(#nodeShadow)');
         g.appendChild(outerCircle);
@@ -324,26 +324,26 @@ function renderHeatmap() {
         const innerCircle = document.createElementNS(svgNS, 'circle');
         innerCircle.setAttribute('cx', stop.x);
         innerCircle.setAttribute('cy', stop.y);
-        innerCircle.setAttribute('r', 6);
+        innerCircle.setAttribute('r', 5);
         innerCircle.setAttribute('fill', 'white');
-        innerCircle.setAttribute('opacity', '0.8');
+        innerCircle.setAttribute('opacity', '0.9');
         g.appendChild(innerCircle);
 
         const textBg = document.createElementNS(svgNS, 'rect');
-        textBg.setAttribute('x', stop.x + NODE_RADIUS + 8);
-        textBg.setAttribute('y', stop.y - 10);
-        textBg.setAttribute('width', stop.name.length * 7 + 10);
-        textBg.setAttribute('height', 20);
+        textBg.setAttribute('x', stop.x + NODE_RADIUS + 6);
+        textBg.setAttribute('y', stop.y - 11);
+        textBg.setAttribute('width', stop.name.length * 6.5 + 14);
+        textBg.setAttribute('height', 22);
         textBg.setAttribute('fill', 'white');
-        textBg.setAttribute('opacity', '0.9');
-        textBg.setAttribute('rx', '4');
+        textBg.setAttribute('opacity', '0.95');
+        textBg.setAttribute('rx', '6');
         textBg.setAttribute('filter', 'url(#nodeShadow)');
         g.appendChild(textBg);
 
         const text = document.createElementNS(svgNS, 'text');
         text.setAttribute('class', 'stop-label');
         text.setAttribute('x', stop.x + NODE_RADIUS + 13);
-        text.setAttribute('y', stop.y);
+        text.setAttribute('y', stop.y + 1);
         text.setAttribute('dominant-baseline', 'middle');
         text.textContent = stop.name;
         g.appendChild(text);
@@ -408,11 +408,11 @@ function updateTooltipPosition(event) {
 }
 
 function getTextColorForOccupancy(occupancy) {
-    if (occupancy < 50) return '#4CAF50';
-    if (occupancy < 80) return '#F9A825';
-    if (occupancy < 100) return '#FF9800';
-    if (occupancy < 120) return '#F44336';
-    return '#B71C1C';
+    if (occupancy < 50) return '#10b981';
+    if (occupancy < 80) return '#f59e0b';
+    if (occupancy < 100) return '#f97316';
+    if (occupancy < 120) return '#ef4444';
+    return '#dc2626';
 }
 
 function handleHourChange() {
@@ -428,8 +428,18 @@ function handleHourChange() {
 
 function handleWeatherCheckboxChange() {
     useWeather = document.getElementById('useWeatherCheckbox').checked;
+    updateWeatherBadge();
     if (currentRoute) {
         handleRouteChange();
+    }
+}
+
+function updateWeatherBadge() {
+    const weatherStatus = document.getElementById('weatherStatus');
+    if (useWeather) {
+        weatherStatus.innerHTML = '<span class="weather-badge active">+20% при дожде</span>';
+    } else {
+        weatherStatus.innerHTML = '<span class="weather-badge inactive">Отключено</span>';
     }
 }
 

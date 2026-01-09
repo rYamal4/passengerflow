@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тепловая карта загруженности остановок</title>
+    <title>Тепловая карта загруженности</title>
     <link rel="stylesheet" href="heatmap.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚌</text></svg>">
 </head>
 <body>
 <header class="page-header">
     <div class="container">
-        <h1>Тепловая карта загруженности остановок</h1>
-        <button class="btn btn-secondary" onclick="window.location.href='index.html'">
-            ← Назад к записям
-        </button>
+        <h1>Тепловая карта загруженности</h1>
+        <a href="index.html" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад
+        </a>
     </div>
 </header>
 
@@ -20,13 +24,13 @@
     <div class="container">
         <div class="controls-grid">
             <div class="control-group">
-                <label for="routeSelect">Маршрут:</label>
+                <label for="routeSelect">Маршрут</label>
                 <select id="routeSelect" class="form-select">
                     <option value="">Выберите маршрут...</option>
                 </select>
             </div>
-            <div class="control-group">
-                <label for="hourSlider">Час: <span id="hourValue">12</span>:00</label>
+            <div class="control-group slider-container">
+                <label for="hourSlider">Время: <span id="hourValue">12</span>:00</label>
                 <input type="range" id="hourSlider" class="hour-slider" min="6" max="18" value="12">
                 <div class="hour-marks">
                     <span>6:00</span>
@@ -35,10 +39,18 @@
                 </div>
             </div>
             <div class="control-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="useWeatherCheckbox" checked>
-                    <span>Учитывать погоду</span>
-                </label>
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="useWeatherCheckbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div class="toggle-label">
+                        <span class="toggle-label-text">Учитывать погоду</span>
+                        <span class="toggle-label-hint" id="weatherStatus">
+                            <span class="weather-badge active">+20% при дожде</span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -53,30 +65,48 @@
     <div class="container">
         <div class="map-container">
             <div class="legend">
-                <h3>Легенда</h3>
+                <h3>Загруженность</h3>
                 <div class="legend-item">
                     <span class="legend-color" style="background-color: #9E9E9E;"></span>
-                    <span>Нет данных</span>
+                    <div class="legend-text">
+                        <span class="legend-range">—</span>
+                        <span class="legend-label">Нет данных</span>
+                    </div>
                 </div>
                 <div class="legend-item">
-                    <span class="legend-color" style="background-color: #4CAF50;"></span>
-                    <span>0-50% (низкая)</span>
+                    <span class="legend-color" style="background-color: #10b981;"></span>
+                    <div class="legend-text">
+                        <span class="legend-range">0–50%</span>
+                        <span class="legend-label">Низкая</span>
+                    </div>
                 </div>
                 <div class="legend-item">
-                    <span class="legend-color" style="background-color: #FFEB3B;"></span>
-                    <span>50-80% (средняя)</span>
+                    <span class="legend-color" style="background-color: #f59e0b;"></span>
+                    <div class="legend-text">
+                        <span class="legend-range">50–80%</span>
+                        <span class="legend-label">Средняя</span>
+                    </div>
                 </div>
                 <div class="legend-item">
-                    <span class="legend-color" style="background-color: #FF9800;"></span>
-                    <span>80-100% (высокая)</span>
+                    <span class="legend-color" style="background-color: #f97316;"></span>
+                    <div class="legend-text">
+                        <span class="legend-range">80–100%</span>
+                        <span class="legend-label">Высокая</span>
+                    </div>
                 </div>
                 <div class="legend-item">
-                    <span class="legend-color" style="background-color: #F44336;"></span>
-                    <span>100-120% (критическая)</span>
+                    <span class="legend-color" style="background-color: #ef4444;"></span>
+                    <div class="legend-text">
+                        <span class="legend-range">100–120%</span>
+                        <span class="legend-label">Критическая</span>
+                    </div>
                 </div>
                 <div class="legend-item">
-                    <span class="legend-color" style="background-color: #B71C1C;"></span>
-                    <span>&gt;120% (экстремальная)</span>
+                    <span class="legend-color" style="background-color: #dc2626;"></span>
+                    <div class="legend-text">
+                        <span class="legend-range">>120%</span>
+                        <span class="legend-label">Перегрузка</span>
+                    </div>
                 </div>
             </div>
 
@@ -84,10 +114,9 @@
                 <div id="emptyState" class="empty-state">
                     <div class="empty-icon">🗺️</div>
                     <h3>Выберите маршрут</h3>
-                    <p>Выберите маршрут из выпадающего списка, чтобы увидеть тепловую карту загруженности остановок.</p>
+                    <p>Выберите маршрут из списка, чтобы увидеть тепловую карту загруженности остановок</p>
                 </div>
-                <svg id="heatmapSvg" width="100%" height="600" style="display: none;">
-                </svg>
+                <svg id="heatmapSvg" width="100%" height="600" style="display: none;"></svg>
             </div>
         </div>
     </div>
