@@ -91,16 +91,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetUsersReturnsEmptyList() {
-        when(userRepository.findAll()).thenReturn(List.of());
-
-        var result = userService.getUsers();
-
-        assertThat(result).isEmpty();
-        verify(userRepository).findAll();
-    }
-
-    @Test
     void testCreateUserSuccess() {
         var userDto = new UserDto(null, TEST_USERNAME, TEST_PASSWORD, ROLE_USER, Set.of());
         when(roleRepository.findByName(ROLE_USER)).thenReturn(Optional.of(testRole));

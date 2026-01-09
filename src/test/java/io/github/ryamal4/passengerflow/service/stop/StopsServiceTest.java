@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StopsServiceTest {
-    public static final int FIVE_LIMIT = 5;
+    private static final int LIMIT = 5;
     private static final double TEST_LAT = 0;
     private static final double TEST_LON = 0;
 
@@ -47,13 +47,13 @@ class StopsServiceTest {
     void testGetNearbyStopsUsesLimitOfFive() {
         stopsService.getNearbyStops(TEST_LAT, TEST_LON);
 
-        verify(stopsRepository).findNearbyStops(TEST_LAT, TEST_LON, FIVE_LIMIT);
+        verify(stopsRepository).findNearbyStops(TEST_LAT, TEST_LON, LIMIT);
     }
 
     @Test
     void testGetNearbyStopsReturnsDataFromRepository() {
         var stops = List.of(stop1, stop2, stop3);
-        when(stopsRepository.findNearbyStops(TEST_LAT, TEST_LON, FIVE_LIMIT)).thenReturn(stops);
+        when(stopsRepository.findNearbyStops(TEST_LAT, TEST_LON, LIMIT)).thenReturn(stops);
 
         var result = stopsService.getNearbyStops(TEST_LAT, TEST_LON);
 

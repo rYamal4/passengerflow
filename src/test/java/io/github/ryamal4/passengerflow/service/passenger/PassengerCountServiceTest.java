@@ -145,9 +145,8 @@ class PassengerCountServiceTest {
         when(passengerCountRepository.save(any(PassengerCount.class))).thenReturn(updatedCount);
 
         var result = passengerCountService.updateCount(1L, updateDTO);
-        passengerCount = updatedCount;
 
-        assertCountIsCorrect(result);
+        assertCountIsCorrect(result, updatedCount, bus, stop, route);
         verify(passengerCountRepository).findById(1L);
         verify(passengerCountRepository).save(any(PassengerCount.class));
     }
@@ -162,10 +161,8 @@ class PassengerCountServiceTest {
         when(passengerCountRepository.save(any(PassengerCount.class))).thenReturn(updatedCount);
 
         var result = passengerCountService.updateCount(1L, updateDTO);
-        passengerCount = updatedCount;
-        bus = newBus;
 
-        assertCountIsCorrect(result);
+        assertCountIsCorrect(result, updatedCount, newBus, stop, route);
         verify(passengerCountRepository).findById(1L);
         verify(busRepository).findById(2L);
         verify(passengerCountRepository).save(any(PassengerCount.class));
@@ -181,10 +178,8 @@ class PassengerCountServiceTest {
         when(passengerCountRepository.save(any(PassengerCount.class))).thenReturn(updatedCount);
 
         var result = passengerCountService.updateCount(1L, updateDTO);
-        passengerCount = updatedCount;
-        stop = newStop;
 
-        assertCountIsCorrect(result);
+        assertCountIsCorrect(result, updatedCount, bus, newStop, route);
         verify(passengerCountRepository).findById(1L);
         verify(stopsRepository).findById(2L);
         verify(passengerCountRepository).save(any(PassengerCount.class));
@@ -282,14 +277,18 @@ class PassengerCountServiceTest {
     }
 
     private void assertCountIsCorrect(PassengerCountDTO dto) {
+        assertCountIsCorrect(dto, passengerCount, bus, stop, route);
+    }
+
+    private void assertCountIsCorrect(PassengerCountDTO dto, PassengerCount expected, Bus expectedBus, Stop expectedStop, Route expectedRoute) {
         assertThat(dto).isNotNull();
-        assertThat(dto.getId()).isEqualTo(passengerCount.getId());
-        assertThat(dto.getBusId()).isEqualTo(bus.getId());
-        assertThat(dto.getStopId()).isEqualTo(stop.getId());
-        assertThat(dto.getEntered()).isEqualTo(passengerCount.getEntered());
-        assertThat(dto.getExited()).isEqualTo(passengerCount.getExited());
-        assertThat(dto.getBusModel()).isEqualTo(bus.getBusModel().getName());
-        assertThat(dto.getStopName()).isEqualTo(stop.getName());
-        assertThat(dto.getRouteName()).isEqualTo(route.getName());
+        assertThat(dto.getId()).isEqualTo(expected.getId());
+        assertThat(dto.getBusId()).isEqualTo(expectedBus.getId());
+        assertThat(dto.getStopId()).isEqualTo(expectedStop.getId());
+        assertThat(dto.getEntered()).isEqualTo(expected.getEntered());
+        assertThat(dto.getExited()).isEqualTo(expected.getExited());
+        assertThat(dto.getBusModel()).isEqualTo(expectedBus.getBusModel().getName());
+        assertThat(dto.getStopName()).isEqualTo(expectedStop.getName());
+        assertThat(dto.getRouteName()).isEqualTo(expectedRoute.getName());
     }
 }

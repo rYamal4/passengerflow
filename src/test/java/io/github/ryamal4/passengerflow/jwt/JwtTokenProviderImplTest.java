@@ -165,7 +165,7 @@ class JwtTokenProviderImplTest {
     }
 
     @Test
-    void testGenerateAccessTokenIncludesExtraClaims() {
+    void testGenerateAccessTokenWithExtraClaimsCreatesValidToken() {
         var extraClaims = Map.<String, Object>of("role", "ROLE_ADMIN", "customClaim", "customValue");
 
         var token = jwtTokenProvider.generateAccessToken(extraClaims, 5, ChronoUnit.MINUTES, userDetails);

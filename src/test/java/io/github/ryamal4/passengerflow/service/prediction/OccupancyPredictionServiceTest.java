@@ -5,6 +5,7 @@ import io.github.ryamal4.passengerflow.model.Route;
 import io.github.ryamal4.passengerflow.model.Stop;
 import io.github.ryamal4.passengerflow.repository.IPassengerCountAggregationRepository;
 import io.github.ryamal4.passengerflow.service.weather.IWeatherService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class OccupancyPredictionServiceTest {
 
+    private static final String ROUTE_NAME = "7A";
+    private static final String STOP_NAME = "Central Station";
+
     @Mock
     private IPassengerCountAggregationRepository aggregationRepository;
 
@@ -31,39 +35,44 @@ class OccupancyPredictionServiceTest {
     @InjectMocks
     private OccupancyPredictionService predictionService;
 
+    private Route route;
+    private Stop stop;
+
+    @BeforeEach
+    void setUp() {
+        route = new Route(1L, ROUTE_NAME, List.of(), List.of());
+        stop = new Stop(1L, STOP_NAME, 55.7558, 37.6173, route, List.of());
+    }
+
     @Test
     void testGetPredictionReturnsDataWithoutRain() {
-        var route = new Route(1L, "7A", List.of(), List.of());
-        var stop = new Stop(1L, "Central Station", 55.7558, 37.6173, route, List.of());
-        var aggregation = new PassengerCountAggregation(1L, stop, 1, 15, 0, 45.0);
+        var aggregation = createAggregation(stop, 15, 0, 45.0);
 
         when(aggregationRepository.findByRouteAndStopAndTime(
-                eq("7A"), eq("Central Station"), anyInt(), eq(15), eq(0)
+                eq(ROUTE_NAME), eq(STOP_NAME), anyInt(), eq(15), eq(0)
         )).thenReturn(Optional.of(aggregation));
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getPrediction("7A", "Central Station", LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
 
         assertThat(result).isPresent();
-        assertThat(result.get().getStopName()).isEqualTo("Central Station");
+        assertThat(result.get().getStopName()).isEqualTo(STOP_NAME);
         assertThat(result.get().getTime()).isEqualTo(LocalTime.of(15, 0));
         assertThat(result.get().getOccupancyPercentage()).isEqualTo(45.0);
     }
 
     @Test
     void testGetPredictionAddsRainBonus() {
-        var route = new Route(1L, "7A", List.of(), List.of());
-        var stop = new Stop(1L, "Central Station", 55.7558, 37.6173, route, List.of());
-        var aggregation = new PassengerCountAggregation(1L, stop, 1, 15, 0, 45.0);
+        var aggregation = createAggregation(stop, 15, 0, 45.0);
 
         when(aggregationRepository.findByRouteAndStopAndTime(
-                eq("7A"), eq("Central Station"), anyInt(), eq(15), eq(0)
+                eq(ROUTE_NAME), eq(STOP_NAME), anyInt(), eq(15), eq(0)
         )).thenReturn(Optional.of(aggregation));
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(true);
 
-        var result = predictionService.getPrediction("7A", "Central Station", LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
 
         assertThat(result).isPresent();
         assertThat(result.get().getOccupancyPercentage()).isEqualTo(65.0);
@@ -71,17 +80,15 @@ class OccupancyPredictionServiceTest {
 
     @Test
     void testGetPredictionAllowsOccupancyOver100() {
-        var route = new Route(1L, "7A", List.of(), List.of());
-        var stop = new Stop(1L, "Central Station", 55.7558, 37.6173, route, List.of());
-        var aggregation = new PassengerCountAggregation(1L, stop, 1, 15, 0, 90.0);
+        var aggregation = createAggregation(stop, 15, 0, 90.0);
 
         when(aggregationRepository.findByRouteAndStopAndTime(
-                eq("7A"), eq("Central Station"), anyInt(), eq(15), eq(0)
+                eq(ROUTE_NAME), eq(STOP_NAME), anyInt(), eq(15), eq(0)
         )).thenReturn(Optional.of(aggregation));
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(true);
 
-        var result = predictionService.getPrediction("7A", "Central Station", LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
 
         assertThat(result).isPresent();
         assertThat(result.get().getOccupancyPercentage()).isEqualTo(110.0);
@@ -93,47 +100,47 @@ class OccupancyPredictionServiceTest {
                 anyString(), anyString(), anyInt(), anyInt(), anyInt()
         )).thenReturn(Optional.empty());
 
-        var result = predictionService.getPrediction("7A", "Central Station", LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void testGetPredictionRoundsMinutesToNearestFive() {
-        var route = new Route(1L, "7A", List.of(), List.of());
-        var stop = new Stop(1L, "Central Station", 55.7558, 37.6173, route, List.of());
-        var aggregation = new PassengerCountAggregation(1L, stop, 1, 15, 0, 45.0);
+        var aggregation = createAggregation(stop, 15, 0, 45.0);
 
         when(aggregationRepository.findByRouteAndStopAndTime(
-                eq("7A"), eq("Central Station"), anyInt(), eq(15), eq(0)
+                eq(ROUTE_NAME), eq(STOP_NAME), anyInt(), eq(15), eq(0)
         )).thenReturn(Optional.of(aggregation));
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getPrediction("7A", "Central Station", LocalTime.of(15, 3));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 3));
 
         assertThat(result).isPresent();
     }
 
     @Test
     void testGetTodayPredictionsReturnsAllStopsForRoute() {
-        var route = new Route(1L, "7A", List.of(), List.of());
-        var stop1 = new Stop(1L, "Central Station", 55.7558, 37.6173, route, List.of());
         var stop2 = new Stop(2L, "Downtown", 55.7558, 37.6173, route, List.of());
-        var aggregation1 = new PassengerCountAggregation(1L, stop1, 1, 8, 0, 45.0);
-        var aggregation2 = new PassengerCountAggregation(2L, stop2, 1, 9, 0, 60.0);
+        var aggregation1 = createAggregation(stop, 8, 0, 45.0);
+        var aggregation2 = createAggregation(stop2, 9, 0, 60.0);
 
-        when(aggregationRepository.findByRouteAndDayOfWeek(eq("7A"), anyInt()))
+        when(aggregationRepository.findByRouteAndDayOfWeek(eq(ROUTE_NAME), anyInt()))
                 .thenReturn(List.of(aggregation1, aggregation2));
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getTodayPredictions("7A");
+        var result = predictionService.getTodayPredictions(ROUTE_NAME);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getStopName()).isEqualTo("Central Station");
+        assertThat(result.get(0).getStopName()).isEqualTo(STOP_NAME);
         assertThat(result.get(0).getTime()).isEqualTo(LocalTime.of(8, 0));
         assertThat(result.get(1).getStopName()).isEqualTo("Downtown");
         assertThat(result.get(1).getTime()).isEqualTo(LocalTime.of(9, 0));
+    }
+
+    private PassengerCountAggregation createAggregation(Stop stop, int hour, int minute, double occupancy) {
+        return new PassengerCountAggregation(1L, stop, 1, hour, minute, occupancy);
     }
 }

@@ -46,7 +46,7 @@ class FileServiceTest {
 
     @Test
     void testStoreFileSuccess() throws IOException {
-        var file = createMockFile("test.jpg", "image/jpeg", 1024, createJpegBytes());
+        var file = createMockFile("test.jpg", "image/jpeg", createJpegBytes());
 
         var filename = fileService.storeFile(file);
 
@@ -57,7 +57,7 @@ class FileServiceTest {
 
     @Test
     void testStoreFileEmptyFile() {
-        var file = createMockFile("test.jpg", "image/jpeg", 0, new byte[0]);
+        var file = createMockFile("test.jpg", "image/jpeg", new byte[0]);
 
         assertThatThrownBy(() -> fileService.storeFile(file))
                 .isInstanceOf(IOException.class)
@@ -67,7 +67,7 @@ class FileServiceTest {
     @Test
     void testStoreFileExceedsMaxSize() {
         var largeContent = new byte[(int) (MAX_FILE_SIZE + 1)];
-        var file = createMockFile("large.jpg", "image/jpeg", MAX_FILE_SIZE + 1, largeContent);
+        var file = createMockFile("large.jpg", "image/jpeg", largeContent);
 
         assertThatThrownBy(() -> fileService.storeFile(file))
                 .isInstanceOf(IOException.class)
@@ -76,7 +76,7 @@ class FileServiceTest {
 
     @Test
     void testStoreFileInvalidFormat() {
-        var file = createMockFile("test.exe", "application/x-msdownload", 1024, new byte[1024]);
+        var file = createMockFile("test.exe", "application/x-msdownload", new byte[1024]);
 
         assertThatThrownBy(() -> fileService.storeFile(file))
                 .isInstanceOf(IOException.class)
@@ -85,7 +85,7 @@ class FileServiceTest {
 
     @Test
     void testStoreFileInvalidMimeType() {
-        var file = createMockFile("test.jpg", "text/plain", 1024, createJpegBytes());
+        var file = createMockFile("test.jpg", "text/plain", createJpegBytes());
 
         assertThatThrownBy(() -> fileService.storeFile(file))
                 .isInstanceOf(IOException.class)
@@ -95,7 +95,7 @@ class FileServiceTest {
     @Test
     void testStoreFileInvalidImageBytes() {
         var invalidBytes = "not an image".getBytes();
-        var file = createMockFile("test.jpg", "image/jpeg", invalidBytes.length, invalidBytes);
+        var file = createMockFile("test.jpg", "image/jpeg", invalidBytes);
 
         assertThatThrownBy(() -> fileService.storeFile(file))
                 .isInstanceOf(IOException.class)
@@ -105,7 +105,7 @@ class FileServiceTest {
     @Test
     void testStorePdfFileSuccess() throws IOException {
         var pdfContent = createPdfBytes();
-        var file = createMockFile("document.pdf", "application/pdf", pdfContent.length, pdfContent);
+        var file = createMockFile("document.pdf", "application/pdf", pdfContent);
 
         var filename = fileService.storeFile(file);
 
@@ -116,7 +116,7 @@ class FileServiceTest {
 
     @Test
     void testDeleteFileSuccess() throws IOException {
-        var file = createMockFile("test.jpg", "image/jpeg", 1024, createJpegBytes());
+        var file = createMockFile("test.jpg", "image/jpeg", createJpegBytes());
         var filename = fileService.storeFile(file);
 
         var deleted = fileService.deleteFile(filename);
@@ -132,7 +132,7 @@ class FileServiceTest {
         assertThat(deleted).isFalse();
     }
 
-    private MultipartFile createMockFile(String name, String contentType, long size, byte[] content) {
+    private MultipartFile createMockFile(String name, String contentType, byte[] content) {
         return new MockMultipartFile("file", name, contentType, content);
     }
 

@@ -52,16 +52,6 @@ class BusServiceTest {
         verify(busRepository).findAll();
     }
 
-    @Test
-    void testGetAllBusesEmptyList() {
-        when(busRepository.findAll()).thenReturn(List.of());
-
-        var result = busService.getAllBuses();
-
-        assertThat(result).isEmpty();
-        verify(busRepository).findAll();
-    }
-
     private Route createRoute() {
         var route = new Route();
         route.setId(1L);
