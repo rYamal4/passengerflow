@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IOccupancyPredictionService {
-    Optional<OccupancyPredictionDTO> getPrediction(String routeName, String stopName, LocalTime time);
+    Optional<OccupancyPredictionDTO> getPrediction(String routeName, String stopName, LocalTime time, boolean useWeather);
 
-    List<OccupancyPredictionDTO> getTodayPredictions(String routeName);
+    List<OccupancyPredictionDTO> getTodayPredictions(String routeName, boolean useWeather);
 }

@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +55,7 @@ class OccupancyPredictionServiceTest {
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0), true);
 
         assertThat(result).isPresent();
         assertThat(result.get().getStopName()).isEqualTo(STOP_NAME);
@@ -72,7 +73,7 @@ class OccupancyPredictionServiceTest {
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(true);
 
-        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0), true);
 
         assertThat(result).isPresent();
         assertThat(result.get().getOccupancyPercentage()).isEqualTo(65.0);
@@ -88,7 +89,7 @@ class OccupancyPredictionServiceTest {
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(true);
 
-        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0), true);
 
         assertThat(result).isPresent();
         assertThat(result.get().getOccupancyPercentage()).isEqualTo(110.0);
@@ -100,7 +101,7 @@ class OccupancyPredictionServiceTest {
                 anyString(), anyString(), anyInt(), anyInt(), anyInt()
         )).thenReturn(Optional.empty());
 
-        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0), true);
 
         assertThat(result).isEmpty();
     }
@@ -115,9 +116,24 @@ class OccupancyPredictionServiceTest {
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 3));
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 3), true);
 
         assertThat(result).isPresent();
+    }
+
+    @Test
+    void testGetPredictionWithoutWeatherSkipsWeatherService() {
+        var aggregation = createAggregation(stop, 15, 0, 45.0);
+
+        when(aggregationRepository.findByRouteAndStopAndTime(
+                eq(ROUTE_NAME), eq(STOP_NAME), anyInt(), eq(15), eq(0)
+        )).thenReturn(Optional.of(aggregation));
+
+        var result = predictionService.getPrediction(ROUTE_NAME, STOP_NAME, LocalTime.of(15, 0), false);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getOccupancyPercentage()).isEqualTo(45.0);
+        verifyNoInteractions(weatherService);
     }
 
     @Test
@@ -131,13 +147,27 @@ class OccupancyPredictionServiceTest {
 
         when(weatherService.isRaining(any(), anyDouble(), anyDouble(), any())).thenReturn(false);
 
-        var result = predictionService.getTodayPredictions(ROUTE_NAME);
+        var result = predictionService.getTodayPredictions(ROUTE_NAME, true);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getStopName()).isEqualTo(STOP_NAME);
         assertThat(result.get(0).getTime()).isEqualTo(LocalTime.of(8, 0));
         assertThat(result.get(1).getStopName()).isEqualTo("Downtown");
         assertThat(result.get(1).getTime()).isEqualTo(LocalTime.of(9, 0));
+    }
+
+    @Test
+    void testGetTodayPredictionsWithoutWeatherSkipsWeatherService() {
+        var aggregation = createAggregation(stop, 8, 0, 45.0);
+
+        when(aggregationRepository.findByRouteAndDayOfWeek(eq(ROUTE_NAME), anyInt()))
+                .thenReturn(List.of(aggregation));
+
+        var result = predictionService.getTodayPredictions(ROUTE_NAME, false);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getOccupancyPercentage()).isEqualTo(45.0);
+        verifyNoInteractions(weatherService);
     }
 
     private PassengerCountAggregation createAggregation(Stop stop, int hour, int minute, double occupancy) {

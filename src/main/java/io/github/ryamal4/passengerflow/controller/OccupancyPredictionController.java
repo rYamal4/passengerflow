@@ -25,14 +25,15 @@ public class OccupancyPredictionController {
     public ResponseEntity<List<OccupancyPredictionDTO>> getPredictions(
             @RequestParam String route,
             @RequestParam(required = false) String stop,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time,
+            @RequestParam(defaultValue = "true") boolean useWeather) {
 
         if (stop != null && time != null) {
-            return predictionService.getPrediction(route, stop, time)
+            return predictionService.getPrediction(route, stop, time, useWeather)
                     .map(prediction -> ResponseEntity.ok(List.of(prediction)))
                     .orElse(ResponseEntity.notFound().build());
         } else {
-            var predictions = predictionService.getTodayPredictions(route);
+            var predictions = predictionService.getTodayPredictions(route, useWeather);
             return ResponseEntity.ok(predictions);
         }
     }

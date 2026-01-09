@@ -27,7 +27,7 @@ public class OccupancyPredictionService implements IOccupancyPredictionService {
     private final IWeatherService weatherService;
 
     @Override
-    public Optional<OccupancyPredictionDTO> getPrediction(String routeName, String stopName, LocalTime time) {
+    public Optional<OccupancyPredictionDTO> getPrediction(String routeName, String stopName, LocalTime time, boolean useWeather) {
         var now = LocalDateTime.now(MOSCOW_ZONE_ID);
         var dayOfWeek = now.getDayOfWeek().getValue();
         var targetDateTime = now.with(time);
@@ -41,13 +41,15 @@ public class OccupancyPredictionService implements IOccupancyPredictionService {
 
         return aggregationOpt.map(aggregation -> {
             var baseOccupancy = aggregation.getAverageOccupancyPercentage();
-            var adjustedOccupancy = adjustOccupancyForWeather(baseOccupancy, targetDateTime, aggregation);
+            var adjustedOccupancy = useWeather
+                    ? adjustOccupancyForWeather(baseOccupancy, targetDateTime, aggregation)
+                    : baseOccupancy;
             return new OccupancyPredictionDTO(stopName, time, adjustedOccupancy);
         });
     }
 
     @Override
-    public List<OccupancyPredictionDTO> getTodayPredictions(String routeName) {
+    public List<OccupancyPredictionDTO> getTodayPredictions(String routeName, boolean useWeather) {
         var now = LocalDateTime.now(MOSCOW_ZONE_ID);
         var dayOfWeek = now.getDayOfWeek().getValue();
 
@@ -58,7 +60,9 @@ public class OccupancyPredictionService implements IOccupancyPredictionService {
                     var time = LocalTime.of(aggregation.getHour(), aggregation.getMinute());
                     var targetDateTime = now.with(time);
                     var baseOccupancy = aggregation.getAverageOccupancyPercentage();
-                    var adjustedOccupancy = adjustOccupancyForWeather(baseOccupancy, targetDateTime, aggregation);
+                    var adjustedOccupancy = useWeather
+                            ? adjustOccupancyForWeather(baseOccupancy, targetDateTime, aggregation)
+                            : baseOccupancy;
                     return new OccupancyPredictionDTO(aggregation.getStop().getName(), time, adjustedOccupancy);
                 })
                 .toList();

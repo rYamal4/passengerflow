@@ -3,6 +3,7 @@ let routeStops = [];
 let predictions = [];
 let currentRoute = '';
 let currentHour = 12;
+let useWeather = true;
 
 const SVG_WIDTH = 1000;
 const SVG_HEIGHT = 600;
@@ -22,8 +23,8 @@ class ApiService {
         return this.request('/api/stops');
     }
 
-    static async getPredictions(route) {
-        return this.request(`/api/predictions?route=${encodeURIComponent(route)}`);
+    static async getPredictions(route, useWeather = true) {
+        return this.request(`/api/predictions?route=${encodeURIComponent(route)}&useWeather=${useWeather}`);
     }
 }
 
@@ -186,7 +187,7 @@ async function handleRouteChange() {
         routeStops = allStops.filter(stop => stop.routeName === currentRoute)
                               .sort((a, b) => a.id - b.id);
 
-        predictions = await ApiService.getPredictions(currentRoute);
+        predictions = await ApiService.getPredictions(currentRoute, useWeather);
 
         hideEmptyState();
         renderHeatmap();
@@ -425,9 +426,17 @@ function handleHourChange() {
     }
 }
 
+function handleWeatherCheckboxChange() {
+    useWeather = document.getElementById('useWeatherCheckbox').checked;
+    if (currentRoute) {
+        handleRouteChange();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('routeSelect').addEventListener('change', handleRouteChange);
     document.getElementById('hourSlider').addEventListener('input', handleHourChange);
+    document.getElementById('useWeatherCheckbox').addEventListener('change', handleWeatherCheckboxChange);
 
     await loadStops();
 });

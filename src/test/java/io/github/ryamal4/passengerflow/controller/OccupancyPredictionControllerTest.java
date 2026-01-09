@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,7 +36,7 @@ class OccupancyPredictionControllerTest extends AbstractControllerTest {
     void testGetSinglePredictionReturnsOk() throws Exception {
         var prediction = new OccupancyPredictionDTO("Central Station", LocalTime.of(15, 0), 45.0);
 
-        when(predictionService.getPrediction(eq("7A"), eq("Central Station"), any(LocalTime.class)))
+        when(predictionService.getPrediction(eq("7A"), eq("Central Station"), any(LocalTime.class), anyBoolean()))
                 .thenReturn(Optional.of(prediction));
 
         mockMvc.perform(get("/api/predictions")
@@ -47,12 +48,12 @@ class OccupancyPredictionControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[0].time").value("15:00:00"))
                 .andExpect(jsonPath("$[0].occupancyPercentage").value(45.0));
 
-        verify(predictionService).getPrediction(eq("7A"), eq("Central Station"), any(LocalTime.class));
+        verify(predictionService).getPrediction(eq("7A"), eq("Central Station"), any(LocalTime.class), eq(true));
     }
 
     @Test
     void testGetSinglePredictionReturnsNotFoundWhenNoData() throws Exception {
-        when(predictionService.getPrediction(eq("7A"), eq("Central Station"), any(LocalTime.class)))
+        when(predictionService.getPrediction(eq("7A"), eq("Central Station"), any(LocalTime.class), anyBoolean()))
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/predictions")
@@ -69,7 +70,7 @@ class OccupancyPredictionControllerTest extends AbstractControllerTest {
                 new OccupancyPredictionDTO("Downtown", LocalTime.of(9, 0), 60.0)
         );
 
-        when(predictionService.getTodayPredictions("7A")).thenReturn(predictions);
+        when(predictionService.getTodayPredictions(eq("7A"), anyBoolean())).thenReturn(predictions);
 
         mockMvc.perform(get("/api/predictions")
                         .param("route", "7A"))
@@ -79,6 +80,24 @@ class OccupancyPredictionControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$[1].stopName").value("Downtown"))
                 .andExpect(jsonPath("$[1].occupancyPercentage").value(60.0));
 
-        verify(predictionService).getTodayPredictions("7A");
+        verify(predictionService).getTodayPredictions(eq("7A"), eq(true));
+    }
+
+    @Test
+    void testGetPredictionsWithUseWeatherFalse() throws Exception {
+        var predictions = List.of(
+                new OccupancyPredictionDTO("Central Station", LocalTime.of(8, 0), 45.0)
+        );
+
+        when(predictionService.getTodayPredictions(eq("7A"), eq(false))).thenReturn(predictions);
+
+        mockMvc.perform(get("/api/predictions")
+                        .param("route", "7A")
+                        .param("useWeather", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].stopName").value("Central Station"))
+                .andExpect(jsonPath("$[0].occupancyPercentage").value(45.0));
+
+        verify(predictionService).getTodayPredictions(eq("7A"), eq(false));
     }
 }
