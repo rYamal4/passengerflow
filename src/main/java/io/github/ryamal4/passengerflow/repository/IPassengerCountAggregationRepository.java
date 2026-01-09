@@ -31,7 +31,7 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
                     ) as current_load
                 FROM passenger_counts pc
                 JOIN buses b ON pc.bus_id = b.id
-                WHERE EXTRACT(DOW FROM pc.timestamp) = :dayOfWeek
+                WHERE EXTRACT(ISODOW FROM pc.timestamp) = :dayOfWeek
             ),
             occupancy_percentages AS (
                 SELECT
@@ -61,22 +61,14 @@ public interface IPassengerCountAggregationRepository extends JpaRepository<Pass
             """, nativeQuery = true)
     int insertAggregatedData(@Param("dayOfWeek") Integer dayOfWeek);
 
-    @Query(value = """
-            SELECT
-                MAX(pca.id) as id,
-                stop_id,
-                day_of_week,
-                hour,
-                0 as minute,
-                AVG(average_occupancy_percentage) as average_occupancy_percentage
-            FROM passenger_counts_aggregation pca
-            JOIN stops s ON pca.stop_id = s.id
-            JOIN routes r ON s.route_id = r.id
+    @Query("""
+            SELECT p FROM PassengerCountAggregation p
+            JOIN FETCH p.stop s
+            JOIN FETCH s.route r
             WHERE r.name = :routeName
-              AND pca.day_of_week = :dayOfWeek
-            GROUP BY stop_id, day_of_week, hour
-            ORDER BY MIN(s.name), hour
-            """, nativeQuery = true)
+              AND p.dayOfWeek = :dayOfWeek
+            ORDER BY s.name, p.hour, p.minute
+            """)
     List<PassengerCountAggregation> findByRouteAndDayOfWeek(@Param("routeName") String routeName, @Param("dayOfWeek") Integer dayOfWeek);
 
     @Query("""
