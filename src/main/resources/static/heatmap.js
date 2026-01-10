@@ -4,6 +4,7 @@ let predictions = [];
 let currentRoute = '';
 let currentHour = 12;
 let useWeather = true;
+let viewMode = 'map';
 
 const SVG_WIDTH = 1000;
 const SVG_HEIGHT = 600;
@@ -190,7 +191,11 @@ async function handleRouteChange() {
         predictions = await ApiService.getPredictions(currentRoute, useWeather);
 
         hideEmptyState();
-        renderHeatmap();
+        if (viewMode === 'map') {
+            showMapView();
+        } else {
+            showTableView();
+        }
     } catch (error) {
         console.error('Error loading predictions:', error);
         ToastManager.error('Не удалось загрузить прогнозы для маршрута');
@@ -202,11 +207,11 @@ async function handleRouteChange() {
 function showEmptyState() {
     document.getElementById('emptyState').style.display = 'block';
     document.getElementById('heatmapSvg').style.display = 'none';
+    document.getElementById('heatmapTable').style.display = 'none';
 }
 
 function hideEmptyState() {
     document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('heatmapSvg').style.display = 'block';
 }
 
 function renderHeatmap() {
@@ -443,10 +448,70 @@ function updateWeatherBadge() {
     }
 }
 
+function handleViewModeChange() {
+    viewMode = document.getElementById('viewModeCheckbox').checked ? 'table' : 'map';
+    updateViewModeBadge();
+    if (currentRoute && routeStops.length > 0) {
+        if (viewMode === 'map') {
+            showMapView();
+        } else {
+            showTableView();
+        }
+    }
+}
+
+function updateViewModeBadge() {
+    const viewModeStatus = document.getElementById('viewModeStatus');
+    if (viewMode === 'map') {
+        viewModeStatus.innerHTML = '<span class="view-badge">Карта</span>';
+    } else {
+        viewModeStatus.innerHTML = '<span class="view-badge">Таблица</span>';
+    }
+}
+
+function showMapView() {
+    document.getElementById('heatmapSvg').style.display = 'block';
+    document.getElementById('heatmapTable').style.display = 'none';
+    document.querySelector('.slider-container').classList.remove('hidden');
+    renderHeatmap();
+}
+
+function showTableView() {
+    document.getElementById('heatmapSvg').style.display = 'none';
+    document.getElementById('heatmapTable').style.display = 'block';
+    document.querySelector('.slider-container').classList.add('hidden');
+    renderTableHeatmap();
+}
+
+function renderTableHeatmap() {
+    const container = document.getElementById('heatmapTable');
+    const hours = Array.from({length: 13}, (_, i) => i + 6);
+
+    let html = '<table class="heatmap-table">';
+    html += '<thead><tr><th>Остановка</th>';
+    hours.forEach(h => html += `<th>${h}:00</th>`);
+    html += '</tr></thead><tbody>';
+
+    routeStops.forEach(stop => {
+        html += `<tr><td class="stop-name">${stop.name}</td>`;
+        hours.forEach(hour => {
+            var occupancy = getOccupancyForStop(stop.name, hour);
+            var color = getOccupancyColor(occupancy);
+            var value = occupancy !== null ? `${occupancy.toFixed(0)}%` : '—';
+            html += `<td class="heatmap-cell" style="background-color: ${color}">${value}</td>`;
+        });
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('routeSelect').addEventListener('change', handleRouteChange);
     document.getElementById('hourSlider').addEventListener('input', handleHourChange);
     document.getElementById('useWeatherCheckbox').addEventListener('change', handleWeatherCheckboxChange);
+    document.getElementById('viewModeCheckbox').addEventListener('change', handleViewModeChange);
 
     await loadStops();
 });

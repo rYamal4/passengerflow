@@ -52,6 +52,20 @@
                     </div>
                 </div>
             </div>
+            <div class="control-group">
+                <div class="toggle-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="viewModeCheckbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div class="toggle-label">
+                        <span class="toggle-label-text">Вид отображения</span>
+                        <span class="toggle-label-hint" id="viewModeStatus">
+                            <span class="view-badge">Карта</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -117,6 +131,7 @@
                     <p>Выберите маршрут из списка, чтобы увидеть тепловую карту загруженности остановок</p>
                 </div>
                 <svg id="heatmapSvg" width="100%" height="600" style="display: none;"></svg>
+                <div id="heatmapTable" class="heatmap-table-container" style="display: none;"></div>
             </div>
         </div>
     </div>
