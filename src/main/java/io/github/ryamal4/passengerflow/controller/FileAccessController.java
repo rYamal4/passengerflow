@@ -25,6 +25,10 @@ public class FileAccessController {
     @GetMapping("/files/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
+            if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                return ResponseEntity.badRequest().build();
+            }
+
             var file = uploadPath.resolve(filename).normalize();
             if (!file.startsWith(uploadPath)) {
                 return ResponseEntity.badRequest().build();

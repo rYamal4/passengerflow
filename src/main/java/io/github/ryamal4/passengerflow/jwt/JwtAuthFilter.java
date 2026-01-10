@@ -1,5 +1,7 @@
 package io.github.ryamal4.passengerflow.jwt;
 
+import io.github.ryamal4.passengerflow.enums.TokenType;
+import io.github.ryamal4.passengerflow.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,6 +27,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private String accessTokenCookieName;
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
+    private final TokenRepository tokenRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 
@@ -37,7 +40,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        // get username from token
+        var tokenInDb = tokenRepository.findByValueAndTypeAndDisabledFalse(accessToken, TokenType.ACCESS);
+        if (tokenInDb.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String username = tokenProvider.getUsernameFromToken(accessToken);
 
         if(username == null) {
