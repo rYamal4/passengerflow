@@ -33,9 +33,9 @@ class WeatherCacheKeyGeneratorTest {
     }
 
     @Test
-    void testGenerateKeyRoundsTimeToFiveMinutes() {
-        var dateTime1 = LocalDateTime.of(2025, 9, 4, 10, 3, 45);
-        var dateTime2 = LocalDateTime.of(2025, 9, 4, 10, 7, 12);
+    void testGenerateKeySameDayDifferentTimesProduceSameKey() {
+        var dateTime1 = LocalDateTime.of(2025, 9, 4, 6, 0);
+        var dateTime2 = LocalDateTime.of(2025, 9, 4, 18, 30);
         var latitude = 52.52;
         var longitude = 13.41;
 
