@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Heatmap Report - ' + ${report.routeName}">Heatmap Report</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 15mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            color: #1f2937;
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #6366f1;
+        }
+
+        .header h1 {
+            font-size: 18pt;
+            color: #6366f1;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 11pt;
+            color: #6b7280;
+        }
+
+        .meta-info {
+            margin-bottom: 15px;
+            font-size: 9pt;
+            color: #6b7280;
+        }
+
+        .meta-left {
+            display: inline;
+        }
+
+        .meta-right {
+            display: inline;
+            float: right;
+        }
+
+        .weather-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: bold;
+        }
+
+        .weather-enabled {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .weather-disabled {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .heatmap-table th,
+        .heatmap-table td {
+            border: 1px solid #e5e7eb;
+            padding: 6px 4px;
+            text-align: center;
+            font-size: 8pt;
+        }
+
+        .heatmap-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .heatmap-table th.stop-header {
+            text-align: left;
+            padding-left: 8px;
+            min-width: 120px;
+        }
+
+        .heatmap-table td.stop-name {
+            text-align: left;
+            padding-left: 8px;
+            font-weight: 500;
+            background-color: #f9fafb;
+        }
+
+        .heatmap-cell {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .legend {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .legend h3 {
+            font-size: 10pt;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .legend-items {
+            display: block;
+        }
+
+        .legend-item {
+            display: inline-block;
+            margin-right: 15px;
+            font-size: 8pt;
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 8pt;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1 th:text="'Отчет по маршруту ' + ${report.routeName}">Heatmap Report</h1>
+    <div class="subtitle" th:text="${report.dayOfWeekName} + ', ' + ${#temporals.format(report.reportDate, 'dd.MM.yyyy')}">
+        Day, Date
+    </div>
+</div>
+
+<div class="meta-info">
+    <span class="meta-left">
+        Сгенерировано: <span th:text="${#temporals.format(report.generatedAt, 'dd.MM.yyyy HH:mm')}">DateTime</span>
+    </span>
+    <span class="meta-right">
+        Учет погоды:
+        <span th:if="${report.weatherEnabled}" class="weather-badge weather-enabled">+20% при дожде</span>
+        <span th:unless="${report.weatherEnabled}" class="weather-badge weather-disabled">Отключено</span>
+    </span>
+</div>
+
+<table class="heatmap-table">
+    <thead>
+    <tr>
+        <th class="stop-header">Остановка</th>
+        <th th:each="hour : ${report.hours}" th:text="${hour} + ':00'">Hour</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="stopName : ${report.stopNames}">
+        <td class="stop-name" th:text="${stopName}">Stop Name</td>
+        <td th:each="hour : ${report.hours}"
+            class="heatmap-cell"
+            th:style="'background-color: ' + ${colorHelper.getColor(report.heatmapData.get(stopName).get(hour))}"
+            th:text="${colorHelper.getLabel(report.heatmapData.get(stopName).get(hour))}">
+            Value
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="legend">
+    <h3>Легенда загруженности</h3>
+    <div class="legend-items">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #9E9E9E;"></div>
+            <span>Нет данных</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #10b981;"></div>
+            <span>0-50% (Низкая)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #f59e0b;"></div>
+            <span>50-80% (Средняя)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #f97316;"></div>
+            <span>80-100% (Высокая)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #ef4444;"></div>
+            <span>100-120% (Критическая)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #dc2626;"></div>
+            <span>&gt;120% (Перегрузка)</span>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    PassengerFlow System
+</div>
+</body>
+</html>
