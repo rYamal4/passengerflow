@@ -5,5 +5,7 @@ import io.github.ryamal4.passengerflow.dto.HeatmapReportDTO;
 public interface IHeatmapReportService {
     byte[] generateHeatmapReport(String routeName, boolean useWeather);
 
+    byte[] generateExcelReport(String routeName, boolean useWeather);
+
     HeatmapReportDTO prepareReportData(String routeName, boolean useWeather);
 }

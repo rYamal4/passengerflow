@@ -177,7 +177,7 @@ function populateRouteSelect() {
 async function handleRouteChange() {
     const routeSelect = document.getElementById('routeSelect');
     currentRoute = routeSelect.value;
-    updateDownloadButton();
+    updateDownloadButtons();
 
     if (!currentRoute) {
         showEmptyState();
@@ -555,9 +555,56 @@ async function downloadPdf() {
     }
 }
 
-function updateDownloadButton() {
-    var btn = document.getElementById('downloadPdfBtn');
-    btn.disabled = !currentRoute;
+async function downloadExcel() {
+    if (!currentRoute) {
+        ToastManager.error('Выберите маршрут для скачивания отчета');
+        return;
+    }
+
+    var btn = document.getElementById('downloadExcelBtn');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+        </svg>
+        Генерация...
+    `;
+
+    try {
+        var response = await fetch(`/api/reports/heatmap/excel?route=${encodeURIComponent(currentRoute)}&useWeather=${useWeather}`);
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Требуется авторизация');
+            }
+            throw new Error(`Ошибка сервера: ${response.status}`);
+        }
+
+        var blob = await response.blob();
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = `heatmap_${currentRoute}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        ToastManager.success('Отчет успешно скачан');
+    } catch (error) {
+        console.error('Error downloading Excel:', error);
+        ToastManager.error(error.message || 'Не удалось скачать отчет');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+function updateDownloadButtons() {
+    document.getElementById('downloadPdfBtn').disabled = !currentRoute;
+    document.getElementById('downloadExcelBtn').disabled = !currentRoute;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -566,6 +613,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('useWeatherCheckbox').addEventListener('change', handleWeatherCheckboxChange);
     document.getElementById('viewModeCheckbox').addEventListener('change', handleViewModeChange);
     document.getElementById('downloadPdfBtn').addEventListener('click', downloadPdf);
+    document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcel);
 
     await loadStops();
 });

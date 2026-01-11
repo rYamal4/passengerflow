@@ -112,14 +112,14 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
-    box-shadow: var(--shadow-md), 0 0 0 0 rgba(16, 185, 129, 0.4);
+    box-shadow: var(--shadow-md), 0 0 0 0 rgba(239, 68, 68, 0.4);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 0 4px rgba(16, 185, 129, 0.15);
+    box-shadow: var(--shadow-lg), 0 0 0 4px rgba(239, 68, 68, 0.15);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -131,8 +131,35 @@ body {
     cursor: not-allowed;
 }
 
-.btn-primary .spin {
+.btn-excel {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+    color: white;
+    box-shadow: var(--shadow-md), 0 0 0 0 rgba(16, 185, 129, 0.4);
+}
+
+.btn-excel:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 0 0 4px rgba(16, 185, 129, 0.15);
+}
+
+.btn-excel:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-excel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary .spin,
+.btn-excel .spin {
     animation: spin 1s linear infinite;
+}
+
+.download-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
 @keyframes spin {
