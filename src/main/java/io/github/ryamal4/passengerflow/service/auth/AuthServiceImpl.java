@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -51,6 +52,7 @@ public class AuthServiceImpl implements AuthService {
     private long refreshTokenDurationSecond;
 
     @Override
+    @Transactional
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest, String accessToken, String refreshToken) {
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -141,6 +143,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<LoginResponse> refresh(String refreshToken) {
         boolean refreshTokenValid = tokenProvider.validateToken(refreshToken);
 
@@ -168,6 +171,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<LoginResponse> logout(String accessToken, String refreshToken) {
         SecurityContextHolder.clearContext();
 
