@@ -1,12 +1,19 @@
 # PassengerFlow
 
-### Overview
+## Overview
 
-PassengerFlow is a Spring Boot web service designed to optimize public transportation by
-analyzing and predicting passenger flow on various routes. The system collects real-time data, analyzes it, and provides
-forecasting capabilities.
+PassengerFlow is a Spring Boot web service designed to optimize public transportation by analyzing and predicting passenger flow on various routes. The system collects real-time data, aggregates it, and provides forecasting capabilities with weather adjustments.
 
-**Technologies:** Java 17, Spring Boot 3.5.5, PostgreSQL, Maven, Testcontainers
+**Technologies:** Java 17, Spring Boot 3.5.5, PostgreSQL, Spring Security, JWT, Caffeine Cache, Maven, Testcontainers
+
+## Features
+
+- Real-time passenger data collection and analysis
+- Occupancy prediction with weather adjustments
+- PDF and Excel report generation
+- JWT-based authentication with role-based access control
+- Geolocation-based nearby stops search
+- Interactive API documentation (Swagger UI)
 
 ## Setup
 
@@ -14,10 +21,9 @@ forecasting capabilities.
 
 - Java 17 or higher
 - PostgreSQL database
+- Docker (optional)
 
 ### Environment Variables
-
-You need these environment variables to run the app:
 
 ```properties
 # Application Configuration
@@ -33,127 +39,171 @@ DB_PASSWORD=your_password
 
 # JWT Security Configuration
 JWT_TOKEN_SECRET=your_base64_secret
+
+# Telegram Bot (optional)
+TELEGRAM_BOT_TOKEN=your_bot_token
 ```
 
 ### Running the Application
 
-#### Option 1: Build and Run with Maven
+#### Option 1: Maven
 
 ```bash
-# Run with Maven
-mvn spring-boot:run
-
-# Run with Maven with passing environment variables directly
-mvn spring-boot:run
-
-# Using Maven wrapper (Unix/Linux/Mac)
+# Unix/Linux/Mac
 ./mvnw spring-boot:run
 
-# Using Maven wrapper (Windows)
+# Windows
 mvnw.cmd spring-boot:run
 ```
 
-#### Option 2: Download Pre-built JAR
+#### Option 2: Pre-built JAR
 
-Alternatively, you can download a pre-built JAR file from
-the [GitHub Releases](https://github.com/ryamal4/passengerflow/releases) page and run it directly:
+Download from [GitHub Releases](https://github.com/ryamal4/passengerflow/releases):
 
 ```bash
 java -jar passengerflow.jar
 ```
 
-#### Option 3: Running with Docker
-
-Run the application using Docker Compose:
+#### Option 3: Docker Compose
 
 ```bash
-# If you have your own PostgreSQL database
+# With your own PostgreSQL
 docker-compose -f passengerflow-compose.yml up
 
-# Or run with included PostgreSQL database
-# In that case you don't need DB_HOST and DB_PORT env variables
+# With included PostgreSQL
 docker-compose -f passengerflow-with-db-compose.yml up
+```
+
+## API Documentation
+
+Interactive API documentation is available at:
+```
+http://localhost:8080/swagger-ui.html
 ```
 
 ## API Endpoints
 
+### Authentication
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/auth/login` | User login | No |
+| POST | `/api/auth/refresh` | Refresh access token | No |
+| POST | `/api/auth/logout` | User logout | Yes |
+| GET | `/api/auth/info` | Current user info | Yes |
+| PUT | `/api/auth/change_password` | Change password | Yes |
+
+### Passenger Data
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/passengers` | Submit passenger count | Yes |
+| GET | `/api/passengers` | List with filters and pagination | Yes |
+| GET | `/api/passengers/{id}` | Get by ID | Yes |
+| PUT | `/api/passengers/{id}` | Update record | Yes |
+| DELETE | `/api/passengers/{id}` | Delete record | Yes |
+
+### Predictions
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/predictions?route={route}` | Daily predictions for route | Yes |
+| GET | `/api/predictions?route={route}&stop={stop}&time={time}` | Specific prediction | Yes |
+
+### Stops
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/stops` | List all stops | Yes |
+| GET | `/api/stops/nearby?lat={lat}&lon={lon}` | Find nearby stops | Yes |
+
+### Buses
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/buses` | List all buses | Yes |
+
+### Bus Models
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/bus-models/{id}/upload` | Upload bus image | Admin |
+| POST | `/api/bus-models/import` | Import from CSV | Admin |
+
+### Reports
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/reports/heatmap` | Generate PDF heatmap report | Yes |
+| GET | `/api/reports/heatmap/excel` | Generate Excel heatmap report | Yes |
+
+### Files
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/files/{filename}` | Download file | No |
+
+### Aggregation
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/aggregation` | Trigger manual aggregation | Admin |
+
+## Example Requests
+
+### Login
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "password"}'
+```
+
 ### Submit Passenger Data
 
-```http
-POST /api/passengers
+```bash
+curl -X POST http://localhost:8080/api/passengers \
+  -H "Content-Type: application/json" \
+  -H "Cookie: accessToken=..." \
+  -d '{
+    "bus_id": 1,
+    "stop_id": 1,
+    "entered": 15,
+    "exited": 8,
+    "timestamp": "2025-12-20T08:30:00"
+  }'
 ```
 
-Submits passenger count data collected from sensors at bus stops.
+### Get Prediction
 
-**Request Body Fields:**
-
-| Field       | Type    | Required | Description                    | Example               |
-|-------------|---------|----------|--------------------------------|-----------------------|
-| `bus_id`    | integer | Yes      | Unique identifier for the bus  | `1`                   |
-| `stop_id`   | integer | Yes      | Unique identifier for the stop | `1`                   |
-| `entered`   | integer | Yes      | Number of passengers entered   | `15`                  |
-| `exited`    | integer | Yes      | Number of passengers exited    | `8`                   |
-| `timestamp` | string  | Yes      | Timestamp in ISO format        | `2025-12-20T08:30:00` |
-
-**Request Body Example:**
-
-```json
-{
-  "bus_id": 1,
-  "stop_id": 1,
-  "entered": 15,
-  "exited": 8,
-  "timestamp": "2025-12-20T08:30:00"
-}
+```bash
+curl "http://localhost:8080/api/predictions?route=7A&stop=Kampi&time=15:00" \
+  -H "Cookie: accessToken=..."
 ```
-
----
-
-### Get Specific Prediction
-
-```http
-GET /api/predictions?route={route}&time={time}&stop={stop}
-```
-
-Returns passenger flow prediction for a specific time and bus stop.
-
-**Parameters:**
-
-| Parameter | Type   | Required | Description      | Example |
-|-----------|--------|----------|------------------|---------|
-| `route`   | string | Yes      | Route identifier | `7A`    |
-| `time`    | string | Yes      | Time in HH:MM    | `15:00` |
-| `stop`    | string | Yes      | Bus stop name    | `Kampi` |
-
----
-
-### Get Daily Route Predictions
-
-```http
-GET /api/predictions?route={route}
-```
-
-Returns hourly passenger flow predictions for all stops on a route.
-
-**Parameters:**
-
-| Parameter | Type   | Required | Description      | Example |
-|-----------|--------|----------|------------------|---------|
-| `route`   | string | Yes      | Route identifier | `7A`    |
-
----
 
 ### Find Nearby Stops
 
-```http
-GET /api/stops/nearby?lat={latitude}&lon={longitude}
+```bash
+curl "http://localhost:8080/api/stops/nearby?lat=60.3256&lon=23.2144" \
+  -H "Cookie: accessToken=..."
 ```
 
-Returns nearby bus stops based on geographic coordinates.
+## Architecture
 
-**Parameters:**
+```
+controller/ → service/ → repository/ → model/
+              ↓
+            dto/
+```
 
-| Parameter | Type   | Required | Description          | Example   |
-|-----------|--------|----------|----------------------|-----------|
-| `lat`     | number | Yes      | Latitude coordinate  | `60.3256` |
-| `lon`     | number | Yes      | Longitude coordinate | `23.2144` |
+**Key components:**
+- **Controllers** — REST API endpoints
+- **Services** — Business logic layer
+- **Repositories** — Data access layer (Spring Data JPA)
+- **DTOs** — Data transfer objects for API contracts
+- **JWT Filter** — Token-based authentication
+- **Scheduler** — Daily data aggregation job (4:00 AM)
+
+## License
+
+MIT
